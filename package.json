@@ -1,12 +1,12 @@
 {
   "dependencies": {
+    "dotenv": "^16.5.0",
     "mysql2": "^3.14.1"
   },
   "name": "backend_assignment",
   "version": "1.0.0",
-  "type":"module",
+  "type": "module",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

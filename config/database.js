@@ -9,10 +9,13 @@ const dbConfig = mysql.createConnection({
   database: process.env.DATABASE,
 });
 
-dbConfig.connect((err) => {
+dbConfig.connect(function(err) {
   if (err) {
     throw err;
   }
   console.log('Connected to the database successfully');
 });
 export default dbConfig;
+
+const result = await dbConfig.query('SELECT * FROM test_table');
+console.log(result[0]);
