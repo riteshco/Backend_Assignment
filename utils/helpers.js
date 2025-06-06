@@ -20,7 +20,7 @@ export const verifyPswd = async (pswd, hashPswd) => {
 }
 export const generateToken = (response) => {
     try{
-        const token = jwt.sign({ id: response.id, email: response.email } , process.env.JWT_SECRET , {expiresIn: '1h'});
+        const token = jwt.sign({ username: response.username, email: response.email , user_role: response.user_role } , process.env.JWT_SECRET , {expiresIn: '1h'});
         return token;
     }
     catch (error){
@@ -29,7 +29,11 @@ export const generateToken = (response) => {
 }
 
 export const authenticateToken = (req ,res , next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
+
+    // const token = req.headers['authorization']?.split(' ')[1];
+
+    const token = req.cookies.token;
+
     if (!token) return res.status(401).json({ error: 'Access token is missing' });
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {

@@ -38,15 +38,45 @@ app.listen(port, () => {
 );
 
 app.get('/', (req, res) => {
+    if(req.cookies.token) {
+        if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+            return res.redirect('/home');
+        }
+        else if (req.user.user_role === 'admin') {
+            return res.redirect('/admin');
+        }
+    }
     res.render('index.ejs');
 })
 
 app.get('/login', (req, res) => {
+    if(req.cookies.token) {
+        if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+            return res.redirect('/home');
+        }
+        else if (req.user.user_role === 'admin') {
+            return res.redirect('/admin');
+        }
+    }
     res.render('login.ejs');
 });
 
 app.get('/signup', (req, res) => {
+    if(req.cookies.token) {
+        if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+            return res.redirect('/home');
+        }
+        else if (req.user.user_role === 'admin') {
+            return res.redirect('/admin');
+        }
+    }
     res.render('signup.ejs');
+}
+);
+
+app.post('/api/logout', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/');
 }
 );
 
@@ -99,7 +129,7 @@ app.post('/auth', async (req, res) => {
             secure: false,
             sameSite: 'Lax'
         });
-        res.redirect('/');
+        res.redirect('/home');
         
         console.log('User authenticated successfully:', user[0].username);;
     }
@@ -147,6 +177,10 @@ app.post('/api/auth', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
+
+app.get('/home' , authenticateToken, (req, res) => {
+    res.render('home.ejs', { user: req.user });
+});
 
 app.get('/users', async (req, res) => {
     try {
