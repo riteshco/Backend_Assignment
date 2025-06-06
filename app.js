@@ -1,6 +1,7 @@
 import express from 'express';
 import db from './config/database.js';
-import mysql from 'mysql2';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 dotenv.config();
 import { hashPswd , verifyPswd , generateToken, authenticateToken } from './utils/helpers.js';
@@ -9,7 +10,13 @@ const port = 8080;
 
 const app = express();
 
+app.set('view engine', 'ejs');
 app.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 const runDBCommand = async (query, params = []) => {
     try {
@@ -26,7 +33,7 @@ app.listen(port, () => {
 );
 
 app.get('/' , (req , res)=>{
-    res.send('<h1>Welcome to the site!</h1>');
+    res.render('index.ejs');
 })
 
 app.get('/login' , (req , res)=>{
