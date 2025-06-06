@@ -1,6 +1,9 @@
 {
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1"
   },
   "name": "backend_assignment",
@@ -8,10 +11,15 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
 }

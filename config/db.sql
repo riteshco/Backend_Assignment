@@ -1,44 +1,51 @@
 CREATE DATABASE food_app;
 USE food_app;
 
-CREATE TABLE users (
+CREATE TABLE Users (
     id integer PRIMARY KEY AUTO_INCREMENT,
     username varchar(100) NOT NULL,
     mobile_number bigint NOT NULL UNIQUE,
     email varchar(100) NOT NULL UNIQUE,
     user_role enum('admin' , 'customer' , 'chef') NOT NULL,
-    password_hash varchar(255) NOT NULL,
-);
+    password_hash varchar(255) NOT NULL
+);          
 
-CREATE TABLE Products (
+CREATE TABLE Products ( 
     id integer PRIMARY KEY AUTO_INCREMENT,
-    name varchar(100) DEFAULT NULL,
+    product_name varchar(100) NOT NULL,
     isavailable boolean DEFAULT true,
-    price decimal(10, 2) DEFAULT NULL,
+    price decimal(10, 2) NOT NULL,
     category varchar(100) DEFAULT NULL,
-)
+    image_url varchar(255) DEFAULT NULL
+);
 
 CREATE TABLE Orders (
     id integer PRIMARY KEY AUTO_INCREMENT,
     created_at datetime DEFAULT CURRENT_TIMESTAMP,
     current_status enum('pending', 'accepted', 'rejected', 'delivered') DEFAULT 'pending',
-    cutomer_id integer FOREIGN KEY REFERENCES users(id),
-    chef_id integer FOREIGN KEY REFERENCES users(id),
-    table_number integer DEFAULT NULL,
+    cutomer_id integer,
+    chef_id integer DEFAULT NULL,
+    table_number integer NOT NULL,
     instructions text DEFAULT NULL,
-);
+    FOREIGN KEY (cutomer_id) REFERENCES Users(id) ON DELETE CASCADE,
+    FOREIGN KEY (chef_id) REFERENCES Users(id) ON DELETE SET NULL
+);  
 
 CREATE TABLE OrderItems(
     id integer PRIMARY KEY AUTO_INCREMENT,
-    order_id integer FOREIGN KEY REFERENCES Orders(id),
-    product_id integer FOREIGN KEY REFERENCES Products(id),
+    order_id integer,
+    product_id integer,
     quantity integer DEFAULT 1,
+    FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE   
 );
 
 CREATE TABLE Payments (
     id integer PRIMARY KEY AUTO_INCREMENT,  
-    user_id integer FOREIGN KEY REFERENCES users(id),
-    order_id integer FOREIGN KEY REFERENCES Orders(id),
+    user_id integer,        
+    order_id integer,
     Total_amount decimal(10, 2) NOT NULL,
     payment_status enum('pending', 'completed', 'failed') DEFAULT 'pending',
-)
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE
+);  
