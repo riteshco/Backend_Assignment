@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">FOODOOR</a>
+        </div>
+    </nav>
+    <form class="container mt-5" action="/api/register" method="POST">
+        <div class="form-group">
+            <label for="usr">Username:</label>
+            <input name="username" type="text" class="form-control" id="usr">
+
+            <label for="mobile_number">Mobile Number:</label>
+            <input name="mobile_number" type="text" class="form-control" id="mobile_number">
+
+            <label for="email">Email address:</label>
+            <input name="email" type="email" class="form-control" id="email">
+
+            <label for="user_role">Sign me as:</label>
+            <select class="form-control" id="user_role" name="user_role">
+                <option value="customer">Customer</option>
+                <option value="chef">Chef</option>
+            </select>
+
+            <label for="password">Password:</label>
+            <input name="password" type="password" class="form-control" id="pwd">
+        </div>
+
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</body>
+
+</html>
