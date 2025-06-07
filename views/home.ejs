@@ -6,18 +6,47 @@
     <link rel="stylesheet" href="style.css">
     <title>Home - FOODOOR</title>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="warm-gradient">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">FOODOOR</a>
-            <form action="/api/logout" method="POST">
-                <button type="submit" class="btn btn-outline-danger">Logout</button>
-            </form>
+            <div class="buttons d-flex gap-4">
+                <form action="/orders">
+                    <button type="submit" class="btn btn-outline-info">Your Orders</button>
+                </form>
+                <form action="/api/logout" method="POST">
+                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                </form>
+            </div>
         </div>
     </nav>
     <div class="container mt-5 text-center">
         <h1>Welcome to FOODOOR! <%= user.username %></h1>
         <p>Your one-stop solution for food delivery.</p>
+        <div class="h2">MENU!</div>
+    </div>
+    <div class="container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
+        <% products.forEach(product => { %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
+            <div class="title text-center">
+                <div class="h1 fw-bolder"><%= product.product_name %></div>
+                <div class="h3">Price: ₹<%= product.price %></div>
+            </div>
+            <div class="image w-100">
+                <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
+            </div>
+            <div class="form fw-bolder h4">
+                <form class="d-flex flex-column align-items-center row-gap-2" action="/api/order" method="POST">
+                    <label for="table<%= product.id%>">Enter your table number</label>
+                    <input class="w-25 input-color" id="table<%= product.id%>" type="number" name="table_number" min="1" max="50" step="1" required>
+                    <label for="instructions<%= product.id%>">Specific instructions for Chef!</label>
+                    <input class="w-100 input-color" id="instructions<%= product.id%>" type="textarea" name="instructions">
+                    <input type="hidden" name="productId" value="<%= product.id %>">
+                    <button type="submit" class="btn btn-primary w-50">Order Now!</button>
+                </form>
+            </div>
+            </div>
+        <% }) %>
     </div>
 </body>
 </html>

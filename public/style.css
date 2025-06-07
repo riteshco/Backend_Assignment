@@ -195,6 +195,20 @@
   }
 }
 
+.warm-gradient{
+  background: linear-gradient(135deg, #ffecd2 0%, #db886d 100%);
+  min-height: 100vh;
+}
+
+.blur-card{
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.input-color{
+  background: linear-gradient(135deg, #ffecd2 0%, #dcc8b4 100%);
+}
+
 .cursive-font {
   font-family: "Edu NSW ACT Cursive", cursive;
   font-optical-sizing: auto;

@@ -39,11 +39,13 @@ app.listen(port, () => {
 
 app.get('/', (req, res) => {
     if(req.cookies.token) {
-        if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
-            return res.redirect('/home');
-        }
-        else if (req.user.user_role === 'admin') {
-            return res.redirect('/admin');
+        if(req.user){
+            if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+                return res.redirect('/home');
+            }
+            else if (req.user.user_role === 'admin') {
+                return res.redirect('/admin');
+            }
         }
     }
     res.render('index.ejs');
@@ -51,11 +53,13 @@ app.get('/', (req, res) => {
 
 app.get('/login', (req, res) => {
     if(req.cookies.token) {
-        if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
-            return res.redirect('/home');
-        }
-        else if (req.user.user_role === 'admin') {
-            return res.redirect('/admin');
+        if(req.user){
+            if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+                return res.redirect('/home');
+            }
+            else if (req.user.user_role === 'admin') {
+                return res.redirect('/admin');
+            }
         }
     }
     res.render('login.ejs');
@@ -63,11 +67,13 @@ app.get('/login', (req, res) => {
 
 app.get('/signup', (req, res) => {
     if(req.cookies.token) {
-        if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
-            return res.redirect('/home');
-        }
-        else if (req.user.user_role === 'admin') {
-            return res.redirect('/admin');
+        if(req.user){
+            if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+                return res.redirect('/home');
+            }
+            else if (req.user.user_role === 'admin') {
+                return res.redirect('/admin');
+            }
         }
     }
     res.render('signup.ejs');
@@ -80,6 +86,27 @@ app.post('/api/logout', (req, res) => {
 }
 );
 
+app.post('/register' , async (req, res)=>{
+    const {username , mobile_number, email, user_role, password} = req.body;
+    if (!username || !mobile_number || !email || !user_role || !password) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+    try {
+        const hshPswd = await hashPswd(password);
+        const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,?,?)'
+        const params = [username, mobile_number, email, user_role, hshPswd];
+        await runDBCommand(query, params);
+        res.redirect('/login');
+    }
+    catch (error) {
+        console.error('Error during registration: ', error);
+        if (error.code === 'ER_DU   _ENTRY') {
+            return res.status(409).json({ error: 'User already exists' });
+        }
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 app.post('/api/register', async (req, res) => {
     const { username, mobile_number, email, user_role, password } = req.body;
     if (!username || !mobile_number || !email || !user_role || !password) {
@@ -90,8 +117,7 @@ app.post('/api/register', async (req, res) => {
         const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,?,?)'
         const params = [username, mobile_number, email, user_role, hshPswd];
         await runDBCommand(query, params);
-        // res.status(201).json({ message: 'User registered successfully' })
-        res.redirect('/');
+        res.status(201).json({ message: 'User registered successfully' })
     }
     catch (error) {
         console.error('Error during registration: ', error);
@@ -178,8 +204,21 @@ app.post('/api/auth', async (req, res) => {
     }
 })
 
-app.get('/home' , authenticateToken, (req, res) => {
-    res.render('home.ejs', { user: req.user });
+app.get('/home' , authenticateToken  , async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const query = 'SELECT user_role FROM Users WHERE email = ?';
+    const user_roleArr = await runDBCommand(query , [req.user.email])
+    if(user_roleArr[0].user_role === 'chef'){
+        const orders = await runDBCommand('SELECT * FROM Orders');
+        console.log(orders)
+        res.render('chef.ejs', {orders});
+    }
+    else if (user_roleArr[0].user_role === 'customer'){
+        const products = await runDBCommand('SELECT * FROM Products')
+        res.render('home.ejs', { user: req.user , products: products });
+    }
 });
 
 app.get('/users', async (req, res) => {
@@ -192,3 +231,57 @@ app.get('/users', async (req, res) => {
     }
 }
 );
+
+app.post('/api/order', authenticateToken , async (req , res)=> {
+    try {
+        const id = req.body.productId;
+        const table_number = req.body.table_number;
+        const instructions = req.body.instructions;
+        const query = 'SELECT * FROM Products WHERE id = ?';
+        const query2 = 'SELECT * FROM Users WHERE email = ?'
+        const product = await runDBCommand(query , id);
+        const customer = await runDBCommand(query2 , req.user.email);
+
+        const seconds = Math.floor(Date.now() % 100);
+        let order_id = table_number + seconds + product[0].id;
+
+        const query3 = 'INSERT INTO Orders (id, customer_id , table_number , instructions) VALUES (? , ? , ? , ?)';
+        await runDBCommand(query3 , [order_id, customer[0].id , table_number , instructions]);
+
+        const query4 = 'INSERT INTO OrderItems (order_id , product_id) VALUES (? , ?)';
+        await runDBCommand(query4 , [order_id , product[0].id])
+
+        res.redirect('/home')           
+    }
+    catch (error) {
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/orders', authenticateToken, async (req, res) => {
+    try {
+        const query1 = 'SELECT * FROM Users WHERE email = ?';
+        const customer = await runDBCommand(query1, [req.user.email]);
+
+        const query2 = 'SELECT * FROM Orders WHERE customer_id = ?';
+        const orders = await runDBCommand(query2 , [customer[0].id])
+
+        const query3 = `
+            SELECT DISTINCT p.product_name
+            FROM Orders o
+            JOIN OrderItems oi ON o.id = oi.order_id
+            JOIN Products p ON oi.product_id = p.id
+            WHERE o.customer_id = ?;
+        `;
+
+        const productRows = await runDBCommand(query3, [customer[0].id]);
+        const productNames = productRows.map(row => row.product_name);
+
+        res.render('orders.ejs', {orders , productNames });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
