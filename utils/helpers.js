@@ -20,7 +20,7 @@ export const verifyPswd = async (pswd, hashPswd) => {
 }
 export const generateToken = (response) => {
     try{
-        const token = jwt.sign({ username: response.username, email: response.email , user_role: response.user_role } , process.env.JWT_SECRET , {expiresIn: '1h'});
+        const token = jwt.sign({id:response.id, username: response.username, email: response.email , user_role: response.user_role } , process.env.JWT_SECRET , {expiresIn: '1h'});
         return token;
     }
     catch (error){

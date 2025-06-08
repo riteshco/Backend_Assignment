@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 dotenv.config();
 import { hashPswd, verifyPswd, generateToken, authenticateToken } from './utils/helpers.js';
+import jwt from 'jsonwebtoken';
 
 const port = 8080;
 
@@ -38,28 +39,38 @@ app.listen(port, () => {
 );
 
 app.get('/', (req, res) => {
-    if(req.cookies.token) {
-        if(req.user){
-            if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+   if(req.cookies.token) {
+       try{
+            const user = jwt.verify(req.cookies.token , process.env.JWT_SECRET);
+            if( user.user_role === 'customer' || user.user_role === 'chef'){
                 return res.redirect('/home');
             }
-            else if (req.user.user_role === 'admin') {
+            else if (user.user_role === 'admin') {
                 return res.redirect('/admin');
             }
         }
+        catch (error){
+            console.error('Invalid token:' , error.message);
+            res.send('Invalid Token!')
+        }
     }
-    res.render('index.ejs');
+    res.render('index.ejs');      
 })
 
 app.get('/login', (req, res) => {
     if(req.cookies.token) {
-        if(req.user){
-            if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
+        try{
+            const user = jwt.verify(req.cookies.token , process.env.JWT_SECRET);
+            if( user.user_role === 'customer' || user.user_role === 'chef'){
                 return res.redirect('/home');
             }
-            else if (req.user.user_role === 'admin') {
+            else if (user.user_role === 'admin') {
                 return res.redirect('/admin');
             }
+        }
+        catch (error){
+            console.error('Invalid token:' , error.message);
+            res.send('Invalid Token!')
         }
     }
     res.render('login.ejs');
@@ -251,6 +262,13 @@ app.post('/api/order', authenticateToken , async (req , res)=> {
         const query4 = 'INSERT INTO OrderItems (order_id , product_id) VALUES (? , ?)';
         await runDBCommand(query4 , [order_id , product[0].id])
 
+        const query5 = 'SELECT * FROM OrderItems WHERE OrderItems.order_id IN(SELECT id FROM Orders WHERE Orders.customer_id = ?)';
+        const orderItems = await runDBCommand(query5 , [req.user.id]);
+
+        // console.log(prices);
+        const query7 = 'INSERT INTO Payments (user_id , order_id , Total_amount) VALUES (?,?,?)';
+        await runDBCommand(query7 , [req.user.id , order_id , product[0].price * orderItems[0].quantity])
+
         res.redirect('/home')           
     }
     catch (error) {
@@ -282,6 +300,19 @@ app.get('/orders', authenticateToken, async (req, res) => {
 
     } catch (err) {
         console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/payment', authenticateToken , async (req , res) =>{
+    try{
+        const query = 'SELECT * FROM Payments WHERE user_id = ?'
+        const payments = await runDBCommand(query , [req.user.id]);
+        console.log(payments)
+        res.render('payment.ejs' , {payments:payments});
+    }
+    catch (error) {
+        console.log(error);
         res.status(500).send('Server error');
     }
 });
