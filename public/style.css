@@ -200,6 +200,11 @@
   min-height: 100vh;
 }
 
+.black-gradient{
+  background: linear-gradient(135deg, #000000 0%, #2a2828 50% , #000000 100%);
+  min-height: 100vh;
+}
+
 .blur-card{
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

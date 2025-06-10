@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 import { hashPswd, verifyPswd, generateToken, authenticateToken } from './utils/helpers.js';
 import jwt from 'jsonwebtoken';
+import { query } from 'express-validator';
 
 const port = 8080;
 
@@ -118,7 +119,7 @@ app.post('/register' , async (req, res)=>{
     }
 });
 
-app.post('/api/register', async (req, res) => {
+app.post('/api/register',query() ,async (req, res) => {
     const { username, mobile_number, email, user_role, password } = req.body;
     if (!username || !mobile_number || !email || !user_role || !password) {
         return res.status(400).json({ error: 'All fields are required' });
@@ -132,10 +133,12 @@ app.post('/api/register', async (req, res) => {
     }
     catch (error) {
         console.error('Error during registration: ', error);
-        if (error.code === 'ER_DU   _ENTRY') {
+        if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ error: 'User already exists' });
         }
-        res.status(500).json({ error: 'Internal Server Error' });
+        else{
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
     }
 });
 
@@ -166,7 +169,12 @@ app.post('/auth', async (req, res) => {
             secure: false,
             sameSite: 'Lax'
         });
-        res.redirect('/home');
+        if(user[0].user_role === "admin"){
+            res.redirect('/admin')
+        }
+        else{
+            res.redirect('/home');
+        }
         
         console.log('User authenticated successfully:', user[0].username);;
     }
@@ -215,15 +223,30 @@ app.post('/api/auth', async (req, res) => {
     }
 })
 
+app.get('/admin' , authenticateToken , async(req , res)=>{
+    if(req.user.user_role === "admin"){
+        try{
+            res.render('admin.ejs');
+        }
+        catch (error) {
+            console.error("Error in :" , error.message);
+            res.status(500).send("Server Error!")
+        }
+    }
+    else{
+        res.status(401).send("Forbidden")
+    }
+});
+
 app.get('/home' , authenticateToken  , async (req, res) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     const query = 'SELECT user_role FROM Users WHERE email = ?';
     const user_roleArr = await runDBCommand(query , [req.user.email])
-    if(user_roleArr[0].user_role === 'chef'){
+    if(user_roleArr[0].user_role === 'chef' || user_roleArr[0].user_role === "admin"){
         const orders = await runDBCommand('SELECT * FROM Orders');
-        console.log(orders)
+        // console.log(orders)
         res.render('chef.ejs', {orders});
     }
     else if (user_roleArr[0].user_role === 'customer'){
@@ -232,13 +255,34 @@ app.get('/home' , authenticateToken  , async (req, res) => {
     }
 });
 
-app.get('/users', async (req, res) => {
-    try {
-        const users = await runDBCommand('SELECT * FROM Users');
-        res.json(users);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).send('Internal Server Error');
+app.get('/users',authenticateToken ,async (req, res) => {
+    if(req.user.user_role === "admin"){
+        try {
+            const users = await runDBCommand('SELECT * FROM Users');
+            res.json(users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+    else{
+        res.status(401).send("Forbidden")
+    }
+}
+);
+
+app.get('/users/:id',authenticateToken ,async (req, res) => {
+    if(req.user.user_role === "admin"){
+        try {
+            const users = await runDBCommand('SELECT * FROM Users WHERE id=?' , req.params.id);
+            res.json(users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+    else{
+        res.status(401).send("Forbidden")
     }
 }
 );
@@ -308,11 +352,50 @@ app.get('/payment', authenticateToken , async (req , res) =>{
     try{
         const query = 'SELECT * FROM Payments WHERE user_id = ?'
         const payments = await runDBCommand(query , [req.user.id]);
-        console.log(payments)
+        // console.log(payments)
         res.render('payment.ejs' , {payments:payments});
     }
     catch (error) {
         console.log(error);
         res.status(500).send('Server error');
+    }
+});
+
+app.get('/all-orders' , authenticateToken , async (req , res)=>{
+    if(req.user.user_role === "admin"){
+        try{
+            const orders = await runDBCommand('SELECT * FROM Orders');             
+            res.render('all_orders.ejs' , {orders});
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).send('Server error');
+        }
+    }
+    else{
+        res.status(401).send("Forbidden Access")
+    }
+});
+app.get('/all-payments' , authenticateToken , async (req , res)=>{
+    if(req.user.user_role === "admin"){
+        try{
+            const payments = await runDBCommand('SELECT * FROM Payments');
+            res.render("all_payments.ejs" , {payments});
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).send('Server error');
+        }
+    }
+    else{
+        res.status(401).send("Forbidden access");
+    }
+});
+
+app.delete('/api/delete/:id' , authenticateToken , (req , res)=>{
+    const id = -1;
+    if(req.user.user_role == "admin"){
+        id = req.params.id;
+        console.log(id);
     }
 });
