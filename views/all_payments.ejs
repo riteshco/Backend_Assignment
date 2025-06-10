@@ -14,8 +14,8 @@
                 <form action="/admin">
                     <button type="submit" class="btn btn-outline-success">Admin Panel</button>
                 </form>
-                <form action="/all-payments">
-                    <button type="submit" class="btn btn-outline-info">Payments</button>
+                <form action="/all-orders">
+                    <button type="submit" class="btn btn-outline-info">All orders</button>
                 </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
@@ -32,7 +32,7 @@
                     <div class="h4">Total Amount : ₹<%= payment.Total_amount %></div>
                     <div class="h4">Status : "<%= payment.payment_status %>"</div>
                 </div>
-                <form action="/api/delete" method="DELETE">
+                <form action="/api/delete-payment/<%= payment.id %>" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
             </div>

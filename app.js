@@ -103,6 +103,9 @@ app.post('/register' , async (req, res)=>{
     if (!username || !mobile_number || !email || !user_role || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
+    if(mobile_number.length != 10){
+        return res.status(400).json({error: 'Invalid mobile number'})
+    }
     try {
         const hshPswd = await hashPswd(password);
         const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,?,?)'
@@ -112,7 +115,7 @@ app.post('/register' , async (req, res)=>{
     }
     catch (error) {
         console.error('Error during registration: ', error);
-        if (error.code === 'ER_DU   _ENTRY') {
+        if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ error: 'User already exists' });
         }
         res.status(500).json({ error: 'Internal Server Error' });
@@ -123,6 +126,9 @@ app.post('/api/register',query() ,async (req, res) => {
     const { username, mobile_number, email, user_role, password } = req.body;
     if (!username || !mobile_number || !email || !user_role || !password) {
         return res.status(400).json({ error: 'All fields are required' });
+    }
+    if(mobile_number.length != 10){
+        return res.status(400).json({error: 'Invalid mobile number'})
     }
     try {
         const hshPswd = await hashPswd(password);
@@ -165,6 +171,7 @@ app.post('/auth', async (req, res) => {
             return res.status(500).json({ error: 'Failed to generate token' });
         }
         res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
             httpOnly: true,
             secure: false,
             sameSite: 'Lax'
@@ -226,7 +233,7 @@ app.post('/api/auth', async (req, res) => {
 app.get('/admin' , authenticateToken , async(req , res)=>{
     if(req.user.user_role === "admin"){
         try{
-            res.render('admin.ejs');
+            res.render('admin.ejs' , {user:req.user});
         }
         catch (error) {
             console.error("Error in :" , error.message);
@@ -246,8 +253,9 @@ app.get('/home' , authenticateToken  , async (req, res) => {
     const user_roleArr = await runDBCommand(query , [req.user.email])
     if(user_roleArr[0].user_role === 'chef' || user_roleArr[0].user_role === "admin"){
         const orders = await runDBCommand('SELECT * FROM Orders');
+        const payments = await runDBCommand('SELECT payment_status FROM Payments WHERE order_id IN (SELECT id FROM Orders)')
         // console.log(orders)
-        res.render('chef.ejs', {orders});
+        res.render('chef.ejs', {orders , payments});
     }
     else if (user_roleArr[0].user_role === 'customer'){
         const products = await runDBCommand('SELECT * FROM Products')
@@ -392,10 +400,60 @@ app.get('/all-payments' , authenticateToken , async (req , res)=>{
     }
 });
 
-app.delete('/api/delete/:id' , authenticateToken , (req , res)=>{
-    const id = -1;
+app.post('/api/delete-order/:id' , authenticateToken , async (req , res)=>{
+    let id = -1;
+    if(req.user.user_role === "admin"){
+        id = req.params.id;
+        const query = 'DELETE FROM Orders WHERE id = ?';
+        await runDBCommand(query , id);
+        res.redirect('/all-orders');
+    }
+    if(req.user.user_role === "customer"){
+        const orders = await runDBCommand('SELECT id FROM Orders WHERE customer_id = ?', req.user.id);
+        if(orders.some(order => order.id == req.params.id)){
+            console.log('access')
+            id = req.params.id;
+            const query = 'DELETE FROM Orders WHERE id = ?';
+            await runDBCommand(query , id)
+            res.redirect('/orders') 
+        }
+        else{
+            res.status(401).send("User not allowed for this order!")
+        }
+    }       
+});
+
+app.post('/api/delete-payment/:id' , authenticateToken , async (req , res)=>{
+    let id = -1;
     if(req.user.user_role == "admin"){
         id = req.params.id;
-        console.log(id);
+        const query = 'DELETE FROM Payments WHERE id = ?';
+        await runDBCommand(query , id);
+        res.redirect('/all-payments');
+    }
+});
+
+app.get('/categories', authenticateToken , async (req , res)=>{
+    if(req.user.user_role === "chef" || req.user.user_role === "customer"){
+        try{
+            let products = '';
+            if(req.query.category){
+                if(req.query.category == "all"){
+                    const query = 'SELECT * FROM Products'
+                    products = await runDBCommand(query)
+                }
+                else{
+                    const query = 'SELECT * FROM Products WHERE category = ?';
+                    products = await runDBCommand(query , req.query.category);
+                }
+            }
+            const categories = await runDBCommand('SELECT DISTINCT category FROM Products');
+            res.render('categories.ejs' , {user : req.user , categories , products});
+            // console.log(products)
+        }
+        catch (error){
+            console.error(error);
+            res.status(500).send("Server error");
+        }
     }
 });

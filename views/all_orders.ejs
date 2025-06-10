@@ -33,7 +33,7 @@
                     <div class="h4">Table Number : <%= order.table_number %></div>
                     <div class="h4">Instructions by Customer : "<%= order.instructions %>"</div>
                 </div>
-                <form action="/api/delete" method="DELETE">
+                <form action="/api/delete-order/<%= order.id %>" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
             </div>

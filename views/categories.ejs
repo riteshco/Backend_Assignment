@@ -11,8 +11,8 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">FOODOOR</a>
             <div class="buttons d-flex gap-4">
-                <form action="/categories">
-                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
+                <form action="/home">
+                    <button type="submit" class="btn btn-outline-primary">Home</button>
                 </form>
                 <form action="/payment">
                     <button type="submit" class="btn btn-outline-success">Payment</button>
@@ -29,17 +29,23 @@
     <div class="container mt-5 text-center">
         <h1>Welcome to FOODOOR! <%= user.username %></h1>
         <p>Your one-stop solution for food delivery.</p>
-        <div class="h2">MENU!</div>
+        <div class="h2">Categories!</div>
     </div>
-    <div class="search-bar text-center container">
-        <form action="/categories" class="d-flex flex-column align-items-center row-gap-2 mb-5">
-            <input type="text" name="search" placeholder="Search for your product" class="w-50 border-3 input-color-2 form-control">
-            <button type="submit" class="btn btn-info form-control w-25">Search</button>
+    <div class="search-bar text-center">
+        <form action="/categories">
+            <select name="category" id="category" class="form-select-lg w-25 input-color">
+                <option value="all">All</option>
+                <% categories.forEach(element =>{ %>
+                    <option value="<%= element.category %>"><%= element.category %></option>
+                <% }); %>
+            </select>
+            <button type="submit" class="btn btn-info">Search</button>
         </form>
     </div>
     <div class="container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
-        <% products.forEach(product => { %>
-            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
+        <% if(products){ %>
+            <% products.forEach(product =>{ %>
+                <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
             <div class="title text-center">
                 <div class="h1 fw-bolder"><%= product.product_name %></div>
                 <div class="h3">Price: ₹<%= product.price %></div>
@@ -59,7 +65,8 @@
                 </form>
             </div>
             </div>
-        <% }) %>
+            <% }); %>
+        <% }; %>
     </div>
 </body>
 </html>

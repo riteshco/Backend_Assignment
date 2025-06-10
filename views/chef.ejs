@@ -21,6 +21,7 @@
         </div>
     </nav>
     <div class="order-list container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
+        <% let i=0; %>
         <% orders.forEach(order =>{ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card row-gap-2">
                 <div>
@@ -39,11 +40,15 @@
                     STATUS : <span class="fw-bolder border border-3 border-primary rounded"> <%= order.current_status %> </span>
                 </div>
                 <div>
-                    <form action="/home" method="GET">
+                    Payment Status : <span class="fw-bolder border border-3 border-primary rounded"> <%= payments[0].payment_status %> </span>
+                </div>
+                <div>
+                    <form action="/api/order-done" method="GET">
                         <button type="submit" class="btn btn-success">Mark as Done!</button>
                     </form>
                 </div>
             </div>
+        <% i++; %>
         <% }) %>
     </div>
 </body>

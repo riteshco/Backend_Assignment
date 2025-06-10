@@ -38,7 +38,7 @@ CREATE TABLE OrderItems(
     quantity integer DEFAULT 1,
     FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE   
-);
+);      
 
 CREATE TABLE Payments (
     id integer PRIMARY KEY AUTO_INCREMENT,  

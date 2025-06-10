@@ -214,6 +214,10 @@
   background: linear-gradient(135deg, #ffecd2 0%, #dcc8b4 100%);
 }
 
+.input-color-2{
+  background: linear-gradient(135deg, #b7adad 0%, #ffecd2 , #b7adad 100%);
+}
+
 .cursive-font {
   font-family: "Edu NSW ACT Cursive", cursive;
   font-optical-sizing: auto;
