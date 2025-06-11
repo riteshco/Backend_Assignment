@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body class="warm-gradient">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">FOODOOR</a>
+            <div class="buttons d-flex gap-4">
+                <% if(user.user_role === "admin"){ %>
+                <form action="/admin">
+                    <button type="submit" class="btn btn-outline-success">Admin Panel</button>
+                </form>
+                <form action="/all-payments">
+                    <button type="submit" class="btn btn-outline-info">Payments</button>
+                </form>
+                <% } %>
+                <form action="/home">
+                    <button type="submit" class="btn btn-outline-primary">Home</button>
+                </form>
+                <form action="/categories">
+                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
+                </form>
+                <form action="/api/logout" method="POST">
+                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                </form>
+            </div>
+        </div>
+
+    </nav>
+    <div class="text-center h2 mt-5 fw-bolder">Add - Food</div>
+    <form class="container mt-5 w-50" action="/api/add-food" method="POST">
+    <div class="form-group">
+        <label for="product-name">Product Name:</label>
+        <input name="name" type="text" class="form-control" id="product-name" minlength="3" maxlength="16" required>
+        <label for="price">Price (in Rs.):</label>
+        <input name="price" type="number" step="0.01" min="0" max="5000" class="form-control" id="price" required>
+        <label for="cat">Category:</label>
+        <input name="category" type="text" class="form-control" id="cat" maxlength="16" required>
+        <label for="url">Food image url:</label>
+        <input name="image_url" type="url" class="form-control" placeholder="(if not available , type null)" required >
+        <button type="submit" class="btn btn-success">Add to the List</button>
+    </div>
+    </form>
+</body>
+
+</html>

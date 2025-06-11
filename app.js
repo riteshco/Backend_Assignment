@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 import { hashPswd, verifyPswd, generateToken, authenticateToken } from './utils/helpers.js';
 import jwt from 'jsonwebtoken';
-import { query } from 'express-validator';
+import { query, validationResult } from 'express-validator';
 
 const port = 8080;
 
@@ -245,7 +245,7 @@ app.get('/admin' , authenticateToken , async(req , res)=>{
     }
 });
 
-app.get('/home' , authenticateToken  , async (req, res) => {
+app.get('/home' , authenticateToken , query('search').isLength({min : 0 , max: 16 }).withMessage('Search must be Less than 16 characters') , async (req, res) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -254,12 +254,29 @@ app.get('/home' , authenticateToken  , async (req, res) => {
     if(user_roleArr[0].user_role === 'chef' || user_roleArr[0].user_role === "admin"){
         const orders = await runDBCommand('SELECT * FROM Orders');
         const payments = await runDBCommand('SELECT payment_status FROM Payments WHERE order_id IN (SELECT id FROM Orders)')
-        // console.log(orders)
         res.render('chef.ejs', {orders , payments});
     }
-    else if (user_roleArr[0].user_role === 'customer'){
+    else if (user_roleArr[0].user_role === 'customer'){ 
+        const result = validationResult(req)
+        // console.log(result.errors)
+        if(result.errors[0]){
+            res.send(result.errors[0].msg)
+        }
+        let searchedProducts = ''
+        let low = 0;
+        let high = 1e4;
+        let range = []
+        if(Object.keys(req.query).length){
+            if(req.query.price !== "all"){
+                range = req.query.price.split('-')
+                low = range[0];
+                high = range[1];
+            }
+            const query1 = 'SELECT * FROM Products WHERE product_name LIKE ? AND price BETWEEN ? AND ?';
+            searchedProducts = await runDBCommand(query1 , [`%${req.query.search}%` , low , high])
+        }
         const products = await runDBCommand('SELECT * FROM Products')
-        res.render('home.ejs', { user: req.user , products: products });
+        res.render('home.ejs', { user: req.user , products: products , query: req.query.search , range, searchedProducts});
     }
 });
 
@@ -433,27 +450,79 @@ app.post('/api/delete-payment/:id' , authenticateToken , async (req , res)=>{
     }
 });
 
+app.post('/api/order-done/:id' , async (req , res)=> {
+    const query = 'UPDATE Orders SET current_status = "delivered" WHERE id = ?';
+    await runDBCommand(query , [req.params.id]);
+    res.redirect('/home');
+});
+
 app.get('/categories', authenticateToken , async (req , res)=>{
-    if(req.user.user_role === "chef" || req.user.user_role === "customer"){
-        try{
-            let products = '';
-            if(req.query.category){
-                if(req.query.category == "all"){
-                    const query = 'SELECT * FROM Products'
-                    products = await runDBCommand(query)
-                }
-                else{
-                    const query = 'SELECT * FROM Products WHERE category = ?';
-                    products = await runDBCommand(query , req.query.category);
-                }
+    try{
+        let products = '';
+        if(req.query.category){
+            if(req.query.category == "all"){
+                const query = 'SELECT * FROM Products'
+                products = await runDBCommand(query)
             }
-            const categories = await runDBCommand('SELECT DISTINCT category FROM Products');
-            res.render('categories.ejs' , {user : req.user , categories , products});
-            // console.log(products)
+                else{
+                const query = 'SELECT * FROM Products WHERE category = ?';
+                products = await runDBCommand(query , req.query.category);
+            }
+        }
+        const categories = await runDBCommand('SELECT DISTINCT category FROM Products');
+        res.render('categories.ejs' , {user : req.user , categories , products});
+    }
+    catch (error){
+        console.error(error);
+        res.status(500).send("Server error");
+    }
+});
+
+app.get('/add-food', authenticateToken , (req , res)=> {
+    if(req.user.user_role === "admin" || req.user.user_role === "chef"){
+        try{
+            res.render('add_food.ejs' , {user:req.user});
         }
         catch (error){
-            console.error(error);
-            res.status(500).send("Server error");
+            console.error(error.message);
+            res.status(500).send('Server Error')
         }
     }
+    else{
+        res.status(401).send('Forbidden Access')
+    }
+});
+
+app.post('/api/add-food' , authenticateToken , async (req , res)=>{
+        if(req.user.user_role === "admin" || req.user.user_role === "chef"){
+        try{
+            console.log(req.body)
+            const {name , price , category , image_url} = req.body;
+            if(!name || !price || !category){
+                return res.status(400).json({ error: 'All fields are required' });
+            }
+            if(name.length < 3 || name.length > 16){
+                return res.status(400).json({error : 'Name length should be between 3 and 16'})
+            }
+            const query = 'INSERT INTO Products (product_name , price , category , image_url) VALUES (?,?,?,?)'
+            await runDBCommand(query , [name , price , category , image_url]);
+            res.redirect('/add-food');  
+        }
+        catch (error){
+            console.error('Error during registration: ', error);
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'User already exists' });
+            }
+            else{
+                res.status(500).json({ error: 'Internal Server Error' });
+                    }
+        }
+    }
+    else{
+        res.status(401).send('Forbidden Access')
+    }
+});
+
+app.get('/edit' , (req , res)=> {
+    res.render('edit.ejs');
 });

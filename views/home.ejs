@@ -27,16 +27,28 @@
         </div>
     </nav>
     <div class="container mt-5 text-center">
-        <h1>Welcome to FOODOOR! <%= user.username %></h1>
-        <p>Your one-stop solution for food delivery.</p>
-        <div class="h2">MENU!</div>
+        <div class="h1 fw-bolder">Welcome to FOODOOR! <span><%= user.username %></span></div>
+        <div>Your one-stop solution for food delivery.</div>
+        <div class="h2 fw-bold">MENU!</div>
     </div>
     <div class="search-bar text-center container">
-        <form action="/categories" class="d-flex flex-column align-items-center row-gap-2 mb-5">
+        <form action="/home" class="d-flex flex-column align-items-center row-gap-2 mb-5">
             <input type="text" name="search" placeholder="Search for your product" class="w-50 border-3 input-color-2 form-control">
+            <div class="form-group">
+                <label for="price" class="fw-bolder">Price Filter:</label>
+                <select name="price" id="price" class="rounded input-color fw-bold">
+                    <option value="all">All</option>
+                    <option value="0-100">0-100</option>
+                    <option value="100-200">100-200</option>
+                    <option value="200-500">200-500</option>
+                    <option value="500-1000">500-1000</option>
+                    <option value="1000+">1000+</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-info form-control w-25">Search</button>
         </form>
     </div>
+    <% if (!searchedProducts){ %>
     <div class="container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
         <% products.forEach(product => { %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
@@ -61,5 +73,46 @@
             </div>
         <% }) %>
     </div>
+    <% } else { %>
+        <form action="/home" class="d-flex flex-column align-items-center row-gap-2 mb-5">
+            <button type="submit" class="btn btn-primary form-control w-25">Back</button>
+        </form>
+        <% if (searchedProducts.length === 0 && query !== ''){ %>
+            <% if (range[0]){ %>
+            <div class="text-center h2 fw-bolder">
+                Your search "<%= query %>" between <%= range[0] %> and <%= range[1] %> was not found!
+            </div>
+            <% }else{ %>
+            <div class="text-center h2 fw-bolder">
+                Your search "<%= query %>" was not found!
+            </div>   
+            <% } %>
+        <% }else{ %>
+    <div class="container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
+        <% searchedProducts.forEach(product => { %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
+            <div class="title text-center">
+                <div class="h1 fw-bolder"><%= product.product_name %></div>
+                <div class="h3">Price: ₹<%= product.price %></div>
+                <div class="h3">Category: <%= product.category %></div>
+            </div>
+            <div class="image w-100">
+                <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
+            </div>
+            <div class="form fw-bolder h4">
+                <form class="d-flex flex-column align-items-center row-gap-2" action="/api/order" method="POST">
+                    <label for="table<%= product.id%>">Enter your table number</label>
+                    <input class="w-25 input-color" id="table<%= product.id%>" type="number" name="table_number" min="1" max="50" step="1" required>
+                    <label for="instructions<%= product.id%>">Specific instructions for Chef!</label>
+                    <input class="w-100 input-color" id="instructions<%= product.id%>" type="textarea" name="instructions">
+                    <input type="hidden" name="productId" value="<%= product.id %>">
+                    <button type="submit" class="btn btn-primary w-50">Order Now!</button>
+                </form>
+            </div>
+            </div>
+        <% }) %>
+    </div>           
+        <% } %>
+    <% } %>
 </body>
 </html>

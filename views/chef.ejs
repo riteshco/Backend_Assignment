@@ -11,8 +11,11 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">FOODOOR</a>
             <div class="buttons d-flex gap-4">
-                <form action="/home">
+                <form action="/add-food">
                     <button type="submit" class="btn btn-outline-info">Add Food</button>
+                </form>
+                <form action="/categories">
+                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
                 </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
@@ -43,8 +46,12 @@
                     Payment Status : <span class="fw-bolder border border-3 border-primary rounded"> <%= payments[0].payment_status %> </span>
                 </div>
                 <div>
-                    <form action="/api/order-done" method="GET">
+                    <form action="/api/order-done/<%= order.id %>" method="POST">
+                        <% if(order.current_status === "delivered"){ %>
+                        <a class="btn btn-secondary">Delivered!</a>
+                        <% }else { %>
                         <button type="submit" class="btn btn-success">Mark as Done!</button>
+                        <% } %>   
                     </form>
                 </div>
             </div>

@@ -37,12 +37,21 @@
                     Product Name: <%= productNames[i]%>
                 </div>
                 </div>
+                <% if(orders[i].current_status === "delivered"){ %>
                 <div>
-                    Order status : <%= orders[i].current_status %>
+                    Order status : <span class="text-success fw-bolder"><%= orders[i].current_status %></span>
                 </div>
+                <% }else{ %>
+                <div>
+                    Order status : <span class="text-danger fw-bolder"><%= orders[i].current_status %></span>
+                </div>
+                <% }; %>
                 <div>
                     Instructions : <%= orders[i].instructions %>
                 </div>
+                <form action="/api/delete-order/<%= orders[i].id %>" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete this order!</button>
+                </form>
             </div>
         <% }%>
     </div>
