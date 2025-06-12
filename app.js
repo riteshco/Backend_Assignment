@@ -283,8 +283,10 @@ app.get('/home' , authenticateToken , query('search').isLength({min : 0 , max: 1
 app.get('/users',authenticateToken ,async (req, res) => {
     if(req.user.user_role === "admin"){
         try {
+            let extra = 0;
             const users = await runDBCommand('SELECT * FROM Users');
-            res.json(users);
+            res.render('users.ejs' , {users , extra})
+            // res.json(users);
         } catch (error) {
             console.error('Error fetching users:', error);
             res.status(500).send('Internal Server Error');
@@ -299,8 +301,10 @@ app.get('/users',authenticateToken ,async (req, res) => {
 app.get('/users/:id',authenticateToken ,async (req, res) => {
     if(req.user.user_role === "admin"){
         try {
-            const users = await runDBCommand('SELECT * FROM Users WHERE id=?' , req.params.id);
-            res.json(users);
+            let extra = 1;
+            const users = await runDBCommand('SELECT * FROM Users WHERE id=?' , [req.params.id]);
+            res.render('users.ejs' , {users , extra});
+            // res.json(users);
         } catch (error) {
             console.error('Error fetching users:', error);
             res.status(500).send('Internal Server Error');
@@ -311,6 +315,58 @@ app.get('/users/:id',authenticateToken ,async (req, res) => {
     }
 }
 );
+
+app.post('/add-to-cart/:id' , authenticateToken , async(req , res)=>{
+    try{
+        const productID = req.params.id;
+        const quantity = req.body.quantity;
+        const customerID = req.user.id;
+        const query = 'INSERT INTO OrderItems (customer_id , product_id , quantity) VALUES (? , ? , ?)';
+        await runDBCommand(query , [customerID , productID , quantity]);
+        res .redirect('/home');
+    }
+    catch (error){
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/cart' , authenticateToken , async(req , res)=>{
+    try{
+        const query = 'SELECT * FROM OrderItems WHERE customer_id = ? AND order_id IS NULL';
+        const orderedItems = await runDBCommand(query , [req.user.id]);
+        res.render('cart.ejs' , {orderedItems});
+    }
+    catch (error){
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/api/cart/order' , authenticateToken , async(req , res)=>{
+    const {table_number , instructions} = req.body;
+    if(!table_number){
+        res.status(401).send("Must give table number!")
+    }
+    try{
+        const query = 'SELECT * FROM OrderItems WHERE customer_id = ? AND order_id IS NULL'
+        const cartItems = await runDBCommand( query , [req.user.id] );
+        const seconds = Math.floor(Date.now() % 100);
+        let order_id = table_number + seconds + cartItems[0].id;
+
+        const query2 = 'INSERT INTO Orders (id, customer_id , table_number , instructions) VALUES (? , ? , ? , ?)';
+        await runDBCommand(query2 , [order_id, req.user.id , table_number , instructions]);
+
+        const query3 = 'UPDATE OrderItems SET order_id = ? WHERE customer_id = ? AND order_id IS NULL';
+        await runDBCommand(query3 , [order_id , req.user.id])
+
+        res.redirect('/cart');
+    }
+    catch (error){
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.post('/api/order', authenticateToken , async (req , res)=> {
     try {
@@ -331,12 +387,7 @@ app.post('/api/order', authenticateToken , async (req , res)=> {
         const query4 = 'INSERT INTO OrderItems (order_id , product_id) VALUES (? , ?)';
         await runDBCommand(query4 , [order_id , product[0].id])
 
-        const query5 = 'SELECT * FROM OrderItems WHERE OrderItems.order_id IN(SELECT id FROM Orders WHERE Orders.customer_id = ?)';
-        const orderItems = await runDBCommand(query5 , [req.user.id]);
-
         // console.log(prices);
-        const query7 = 'INSERT INTO Payments (user_id , order_id , Total_amount) VALUES (?,?,?)';
-        await runDBCommand(query7 , [req.user.id , order_id , product[0].price * orderItems[0].quantity])
 
         res.redirect('/home')           
     }
@@ -523,6 +574,115 @@ app.post('/api/add-food' , authenticateToken , async (req , res)=>{
     }
 });
 
-app.get('/edit' , (req , res)=> {
-    res.render('edit.ejs');
+app.post('/api/delete-user/:id', authenticateToken , async (req , res)=>{
+    if(req.user.user_role === "admin"){
+        try{
+            const query = 'DELETE FROM Users WHERE id = ?';
+            await runDBCommand(query , [req.params.id])
+            res.redirect('/users');
+        }
+        catch (error) {
+            console.log("Error : " , error.message);
+            res.status(500).send({Error : 'Server Error'});
+        }
+    }
+    else {
+        if(req.user.id === req.params.id){
+            try{
+
+                const query = 'DELETE FROM Users WHERE id = ?';
+                await runDBCommand(query , [req.params.id]);
+                res.redirect('/');
+            }
+            catch (error){
+                console.log("Error : " , error.message);
+                res.status(500).send({Error : 'Server Error'})
+            }
+        }
+        else{
+            res.status(401).send('Forbidden Access');
+        }
+    }
+
+});
+
+app.get('/edit-user/:id', authenticateToken , async (req , res)=> {
+    if(req.user.user_role === "admin"){
+        try{
+            const user = await runDBCommand('SELECT * FROM Users WHERE id = ?' , [req.params.id])
+            if(user.length === 0){
+                res.redirect('/users');
+            }
+            res.render('edit.ejs' , {user : user[0], role:req.user.user_role});
+        }
+        catch (error){
+            console.log("Error : " , error.message);
+            res.status(500).send({Error : 'Server Error'})
+        }
+    }
+    else {
+        if(req.user.id === req.params.id){
+            try{
+                const user = await runDBCommand('SELECT * FROM Users WHERE id = ?' , [req.user.id])
+                res.render('edit.ejs' , {user , role:req.user.user_role});
+            }
+            catch (error) {
+            console.log("Error : " , error.message);
+            res.status(500).send({Error : 'Server Error'})
+            }
+        }
+        else{
+            res.status(401).send('Forbidden Access');
+        }
+    }
+});
+
+app.post('/gen-payment/:id', authenticateToken , async (req , res)=> {
+    if(req.user.user_role === "admin"){
+        try{
+            const order = await runDBCommand('SELECT * FROM Orders WHERE id = ?' , [req.params.id])
+            if(order.length === 0){
+                res.redirect('/all-orders');
+            }
+            await runDBCommand('UPDATE Orders SET current_status = "accepted" WHERE id = ? ' , [req.params.id]);
+
+            const orderItems = await runDBCommand('SELECT * FROM OrderItems WHERE order_id = ?' , [req.params.id]);
+            const product = await runDBCommand('SELECT price FROM Products WHERE id = ?' , [orderItems[0].product_id])
+
+            const query1 = 'INSERT INTO Payments (user_id , order_id , Total_amount) VALUES (?,?,?)';
+            await runDBCommand(query1 , [order[0].customer_id , req.params.id , product[0].price * orderItems[0].quantity]);
+            res.redirect('/all-orders');
+        }
+        catch (error){
+            console.log("Error : " , error.message);
+            res.status(500).send({Error : 'Server Error'})
+        }
+    }
+    else {
+        res.status(401).send('Forbidden Access');
+    }
+});
+
+
+app.post('/edit-user' , authenticateToken , async (req , res)=>{
+    if(req.user.user_role === "admin"){
+        const {username , user_role , id} = req.body;
+        if (!username || !user_role) {
+            return res.status(400).json({ error: 'All fields are required'});
+    }
+
+    try {
+        const query = 'UPDATE Users SET username = ?, user_role = ? WHERE id = ?'
+        const params = [username, user_role , id];
+        await runDBCommand(query, params);
+        res.redirect('/users');
+    }
+    catch (error) {
+        console.error('Error during registration: ', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    }
+    else{
+        res.status(400).send('Forbidden Access')
+    }
 });

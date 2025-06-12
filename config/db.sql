@@ -30,10 +30,11 @@ CREATE TABLE Orders (
     FOREIGN KEY (customer_id) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (chef_id) REFERENCES Users(id) ON DELETE SET NULL
 );  
-    
+
 CREATE TABLE OrderItems(
     id integer PRIMARY KEY AUTO_INCREMENT,
     order_id integer,
+    customer_id integer,
     product_id integer,
     quantity integer DEFAULT 1,
     FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE,

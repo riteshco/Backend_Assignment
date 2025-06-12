@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <% if(extra){ %>
+        <link rel="stylesheet" href="../style.css">
+    <% }else{ %>
+        <link rel="stylesheet" href="style.css">
+        <% } %>
     <title>Home - FOODOOR</title>
 </head>
 <body class="black-gradient">
@@ -14,8 +18,8 @@
                 <form action="/admin">
                     <button type="submit" class="btn btn-outline-success">Admin Panel</button>
                 </form>
-                <form action="/all-payments">
-                    <button type="submit" class="btn btn-outline-info">Payments</button>
+                <form action="/all-orders">
+                    <button type="submit" class="btn btn-outline-info">All orders</button>
                 </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
@@ -24,23 +28,19 @@
         </div>
     </nav>
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">   
-        <% orders.forEach(order =>{ %>
+        <% users.forEach(user =>{ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
                 <div class="title text-center">
-                    <div class="h1 fw-bolder">Order #<%= order.id %></div>
-                    <div class="h4">Status : <%= order.current_status %> </div>
-                    <div class="h4">Customer ID : <%= order.customer_id %></div>
-                    <div class="h4">Table Number : <%= order.table_number %></div>
-                    <div class="h4">Instructions by Customer : "<%= order.instructions %>"</div>
+                    <div class="h1 fw-bolder">User #<%= user.id %></div>
+                    <div class="h4">User ID : <%= user.username %> </div>
+                    <div class="h4">Email : <%= user.email %></div>
+                    <div class="h4">Role : <%= user.user_role %></div>
+                    <div class="h4">Contact no. : "<%= user.mobile_number %>"</div>
                 </div>
-                <div class="d-flex column-gap-4">
-                    <form action="/api/delete-order/<%= order.id %>" method="POST" class="d-flex column-gap-4">
-                        <button type="submit" class="btn btn-outline-danger">Delete</button>
-                    </form>
-                    <form action="/gen-payment/<%= order.id %>" method="POST">
-                        <button type="submit" class="btn btn-outline-info">Accept the order and generate the bill!</button>
-                    </form>
-                </div>
+                <form action="/api/delete-user/<%= user.id %>" method="POST">
+                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    <a href="/edit-user/<%= user.id %>" class="btn btn-outline-info ">Edit</a>
+                </form>
             </div>
         <% }); %> 
     </div>

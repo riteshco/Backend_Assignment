@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
     <title>Payment - FOODOOR</title>
 </head>
-<body class="warm-gradient">
+
+<body class="black-gradient">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">FOODOOR</a>
             <div class="buttons d-flex gap-4">
-                <form action="/home">
-                    <button type="submit" class="btn btn-outline-primary">Home</button>
+                <form action="/admin">
+                    <button type="submit" class="btn btn-outline-success">Admin Panel</button>
                 </form>
                 <form action="/categories">
                     <button type="submit" class="btn btn-outline-warning">Categories Section</button>
                 </form>
-                <form action="/orders">
-                    <button type="submit" class="btn btn-outline-info">Your Orders</button>
+                <form action="/users">
+                    <button type="submit" class="btn btn-outline-info">All Users</button>
                 </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
@@ -26,5 +28,32 @@
             </div>
         </div>
     </nav>
+    <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
+        <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
+            <div class="title text-center">
+                <div class="h1 fw-bolder">User #<%= user.id %>
+                </div>
+            </div>
+            <form action="/edit-user" method="POST">
+                <input type="hidden" value="<%= user.id %>" name="id">
+                <div class="form-group">
+                    <label for="usr">Username:</label>
+                    <input name="username" type="text" class="form-control dark-input fw-bolder text-light" id="usr" minlength="3" maxlength="16" value="<%= user.username %>"
+                        required>
+
+                    <label for="user_role">Change the role as:</label>
+                    <select class="form-control dark-input fw-bolder text-light" id="user_role" name="user_role" required>
+                        <option class="bg-secondary" value="customer">Customer</option>
+                        <option class="bg-secondary" value="chef">Chef</option>
+                    </select>
+                </div>
+                <div class="mt-4 d-flex column-gap-4">
+                    <button type="submit" class="btn btn-outline-success">Edit it</button>
+                    <a href="/" class="btn btn-outline-danger">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
+
 </html>

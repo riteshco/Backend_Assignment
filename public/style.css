@@ -205,6 +205,10 @@
   min-height: 100vh;
 }
 
+.dark-input{
+  background: linear-gradient(60deg , #2d2a2a 0% , #4d4747 50% ,#2d2a2a 100% );
+}
+
 .blur-card{
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

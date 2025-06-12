@@ -11,6 +11,9 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">FOODOOR</a>
             <div class="buttons d-flex gap-4">
+                <form action="/cart">
+                    <button type="submit" class="btn btn-outline-primary">Your Cart</button>
+                </form>
                 <form action="/categories">
                     <button type="submit" class="btn btn-outline-warning">Categories Section</button>
                 </form>
@@ -60,14 +63,19 @@
             <div class="image w-100">
                 <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
             </div>
-            <div class="form fw-bolder h4">
+            <div class="form fw-bolder h4 d-flex flex-column row-gap-4">
                 <form class="d-flex flex-column align-items-center row-gap-2" action="/api/order" method="POST">
                     <label for="table<%= product.id%>">Enter your table number</label>
                     <input class="w-25 input-color" id="table<%= product.id%>" type="number" name="table_number" min="1" max="50" step="1" required>
                     <label for="instructions<%= product.id%>">Specific instructions for Chef!</label>
                     <input class="w-100 input-color" id="instructions<%= product.id%>" type="textarea" name="instructions">
                     <input type="hidden" name="productId" value="<%= product.id %>">
-                    <button type="submit" class="btn btn-primary w-50">Order Now!</button>
+                    <button type="submit" class="btn btn-primary w-50 fw-bolder">Order one Now!</button>
+                </form>
+                <form class="d-flex justify-content-center gap-3" action="/add-to-cart/<%= product.id %>" method="POST">
+                    <label for="quantity">Quantity:</label>
+                    <input name="quantity" class="form-control w-25 input-color border-dark border-2 fw-bolder" id="quantity" type="number" min="1" max="100" value="1" required>
+                    <button type="submit" class="btn btn-warning w-50 fw-bolder border-dark">Add to Cart!</button>
                 </form>
             </div>
             </div>
