@@ -258,7 +258,6 @@ app.get('/home' , authenticateToken , query('search').isLength({min : 0 , max: 1
     }
     else if (user_roleArr[0].user_role === 'customer'){ 
         const result = validationResult(req)
-        // console.log(result.errors)
         if(result.errors[0]){
             res.send(result.errors[0].msg)
         }
@@ -286,7 +285,6 @@ app.get('/users',authenticateToken ,async (req, res) => {
             let extra = 0;
             const users = await runDBCommand('SELECT * FROM Users');
             res.render('users.ejs' , {users , extra})
-            // res.json(users);
         } catch (error) {
             console.error('Error fetching users:', error);
             res.status(500).send('Internal Server Error');
@@ -304,7 +302,6 @@ app.get('/users/:id',authenticateToken ,async (req, res) => {
             let extra = 1;
             const users = await runDBCommand('SELECT * FROM Users WHERE id=?' , [req.params.id]);
             res.render('users.ejs' , {users , extra});
-            // res.json(users);
         } catch (error) {
             console.error('Error fetching users:', error);
             res.status(500).send('Internal Server Error');
@@ -362,7 +359,7 @@ app.post('/api/cart/order' , authenticateToken , async(req , res)=>{
 
         res.redirect('/cart');
     }
-    catch (error){
+    catch (error){  
         console.error('Error in ordering: ' , error);
         res.status(500).send('Internal Server Error');
     }
@@ -386,8 +383,6 @@ app.post('/api/order', authenticateToken , async (req , res)=> {
 
         const query4 = 'INSERT INTO OrderItems (order_id , product_id) VALUES (? , ?)';
         await runDBCommand(query4 , [order_id , product[0].id])
-
-        // console.log(prices);
 
         res.redirect('/home')           
     }
@@ -428,12 +423,30 @@ app.get('/payment', authenticateToken , async (req , res) =>{
     try{
         const query = 'SELECT * FROM Payments WHERE user_id = ?'
         const payments = await runDBCommand(query , [req.user.id]);
-        // console.log(payments)
         res.render('payment.ejs' , {payments:payments});
     }
     catch (error) {
         console.log(error);
         res.status(500).send('Server error');
+    }
+});
+
+app.post('/payment-done/:id', authenticateToken, async (req , res)=>{
+    try {
+        const query = 'SELECT user_id FROM Payments WHERE id = ?';
+        const user_id = await runDBCommand(query , [req.params.id])
+        if(user_id[0].user_id === req.user.id){
+            const query2 = 'UPDATE Payments SET payment_status = "completed" WHERE id = ? AND user_id = ?';
+            await runDBCommand(query2 , [req.params.id , req.user.id]);
+            res.redirect('/payment');
+        }
+        else{
+            res.send(401).send('Authorization failure!')
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server Error');
     }
 });
 
@@ -479,7 +492,6 @@ app.post('/api/delete-order/:id' , authenticateToken , async (req , res)=>{
     if(req.user.user_role === "customer"){
         const orders = await runDBCommand('SELECT id FROM Orders WHERE customer_id = ?', req.user.id);
         if(orders.some(order => order.id == req.params.id)){
-            console.log('access')
             id = req.params.id;
             const query = 'DELETE FROM Orders WHERE id = ?';
             await runDBCommand(query , id)
@@ -547,7 +559,6 @@ app.get('/add-food', authenticateToken , (req , res)=> {
 app.post('/api/add-food' , authenticateToken , async (req , res)=>{
         if(req.user.user_role === "admin" || req.user.user_role === "chef"){
         try{
-            console.log(req.body)
             const {name , price , category , image_url} = req.body;
             if(!name || !price || !category){
                 return res.status(400).json({ error: 'All fields are required' });

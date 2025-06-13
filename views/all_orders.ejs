@@ -37,9 +37,13 @@
                     <form action="/api/delete-order/<%= order.id %>" method="POST" class="d-flex column-gap-4">
                         <button type="submit" class="btn btn-outline-danger">Delete</button>
                     </form>
+                <% if(order.current_status === "pending"){ %>
                     <form action="/gen-payment/<%= order.id %>" method="POST">
                         <button type="submit" class="btn btn-outline-info">Accept the order and generate the bill!</button>
                     </form>
+                <% } else { %>
+                    <a href="#" class="btn btn-outline-secondary">Accepted!</a>                   
+                <% } %>
                 </div>
             </div>
         <% }); %> 

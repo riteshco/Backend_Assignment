@@ -26,12 +26,12 @@
             </div>
         </div>
     </nav>
+    <div class="h1 fw-bolder text-center mt-5">Payments</div>
     <div class="payments container d-flex flex-column p-5 row-gap-4">
-        <% let i = 1; %>
         <% payments.forEach( payment =>{ %>
             <div class="card card w-80 p-5 bg-secondary bg-opacity-10 blur-card">
                 <div>
-                    Payment #<%= i %>
+                    Payment #<%= payment.id %>
                 </div>
                 <div>
                     Order - ID : <%= payment.order_id %>
@@ -39,11 +39,21 @@
                 <div>
                     Total Amount : ₹<%= payment.Total_amount %>
                 </div>
+                <% if(payment.payment_status === "pending"){ %>
                 <div>
-                    Payment status : <%= payment.payment_status %>
+                    Payment status : <span class="text-danger fw-bolder"><%= payment.payment_status %></span>
                 </div>
+                <form action="/payment-done/<%= payment.id %>" method="POST">
+                    <button type="submit" class="btn btn-success">
+                        Mark Payment as done!
+                    </button>
+                </form>
+                <% } else { %>
+                <div>
+                    Payment status : <span class="text-success fw-bolder"><%= payment.payment_status %></span>
+                </div>
+                <% } %>
             </div>
-        <% i++; %>
         <% }) %>
     </div>
 </body>
