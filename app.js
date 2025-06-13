@@ -106,6 +106,9 @@ app.post('/register' , async (req, res)=>{
     if(mobile_number.length != 10){
         return res.status(400).json({error: 'Invalid mobile number'})
     }
+    if(password.length < 8){
+        return res.status(400).send('Password Length should be greater than equal to 8')
+    }
     try {
         const hshPswd = await hashPswd(password);
         const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,?,?)'
@@ -129,6 +132,9 @@ app.post('/api/register',query() ,async (req, res) => {
     }
     if(mobile_number.length != 10){
         return res.status(400).json({error: 'Invalid mobile number'})
+    }
+    if(password.length < 8){
+        return res.status(400).send('Password Length should be greater than equal to 8')
     }
     try {
         const hshPswd = await hashPswd(password);
