@@ -131,8 +131,8 @@ app.post('/register' , async (req, res)=>{
 });
 
 app.post('/api/register',query() ,async (req, res) => {
-    const { username, mobile_number, email, user_role, password } = req.body;
-    if (!username || !mobile_number || !email || !user_role || !password) {
+    const { username, mobile_number, email, password } = req.body;
+    if (!username || !mobile_number || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
     if(mobile_number.length != 10){
@@ -143,8 +143,8 @@ app.post('/api/register',query() ,async (req, res) => {
     }
     try {
         const hshPswd = await hashPswd(password);
-        const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,?,?)'
-        const params = [username, mobile_number, email, user_role, hshPswd];
+        const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,"customer",?)'
+        const params = [username, mobile_number, email , hshPswd];
         await runDBCommand(query, params);
         res.status(201).json({ message: 'User registered successfully' })
     }
