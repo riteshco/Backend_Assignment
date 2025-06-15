@@ -52,6 +52,7 @@ CREATE TABLE Payments (
 );  
 
 -- admin account
+-- password is "admin"
 INSERT INTO Users (username , mobile_number , email , user_role , password_hash) VALUES ('admin' , '1234512345' , 'admin@gmail.com' , 'admin' , '$2b$10$CXu.VPoykiOiBVfVMQ1Wm.qqHns7pAjc3QKAv4ZWEgRtfO/uhn9fK');
 
 -- demo products
