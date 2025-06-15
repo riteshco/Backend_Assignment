@@ -52,27 +52,22 @@
         </form>
     </div>
     <% if (!searchedProducts){ %>
-    <div class="container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
+    <div class="d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
         <% products.forEach(product => { %>
-            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
+            <div class="card w-25 p-5 bg-secondary bg-opacity-10 blur-card">
             <div class="title text-center">
-                <div class="h1 fw-bolder"><%= product.product_name %></div>
-                <div class="h3">Price: ₹<%= product.price %></div>
-                <div class="h3">Category: <%= product.category %></div>
+                <div class="h2 fw-bolder"><%= product.product_name %></div>
+                <div class="h4">Price: ₹<%= product.price %></div>
+                <div class="h4">Category: <%= product.category %></div>
             </div>
             <div class="image w-100">
                 <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
             </div>
-            <div class="form fw-bolder h4 d-flex flex-column row-gap-4">
-                <form class="d-flex flex-column align-items-center row-gap-2" action="/api/order" method="POST">
-                    <label for="table<%= product.id%>">Enter your table number</label>
-                    <input class="w-25 input-color" id="table<%= product.id%>" type="number" name="table_number" min="1" max="50" step="1" required>
-                    <label for="instructions<%= product.id%>">Specific instructions for Chef!</label>
-                    <input class="w-100 input-color" id="instructions<%= product.id%>" type="textarea" name="instructions">
-                    <input type="hidden" name="productId" value="<%= product.id %>">
-                    <button type="submit" class="btn btn-primary w-50 fw-bolder">Order one Now!</button>
+            <div class="form fw-bolder h5 d-flex flex-column row-gap-4 mt-3">
+                <form class="text-center" action="/add-one-to-cart/<%= product.id %>" method="POST">
+                    <button type="submit" class="btn btn-primary w-75 fw-bolder">Order one Now!</button>
                 </form>
-                <form class="d-flex justify-content-center gap-3" action="/add-to-cart/<%= product.id %>" method="POST">
+                <form class="d-flex justify-content-center align-items-center gap-3" action="/add-to-cart/<%= product.id %>" method="POST">
                     <label for="quantity">Quantity:</label>
                     <input name="quantity" class="form-control w-25 input-color border-dark border-2 fw-bolder" id="quantity" type="number" min="1" max="100" value="1" required>
                     <button type="submit" class="btn btn-warning w-50 fw-bolder border-dark">Add to Cart!</button>
@@ -96,25 +91,25 @@
             </div>   
             <% } %>
         <% }else{ %>
-    <div class="container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
+    <div class="d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
         <% searchedProducts.forEach(product => { %>
-            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
+            <div class="card w-25 p-5 bg-secondary bg-opacity-10 blur-card">
             <div class="title text-center">
-                <div class="h1 fw-bolder"><%= product.product_name %></div>
-                <div class="h3">Price: ₹<%= product.price %></div>
-                <div class="h3">Category: <%= product.category %></div>
+                <div class="h2 fw-bolder"><%= product.product_name %></div>
+                <div class="h4">Price: ₹<%= product.price %></div>
+                <div class="h4">Category: <%= product.category %></div>
             </div>
             <div class="image w-100">
                 <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
             </div>
-            <div class="form fw-bolder h4">
-                <form class="d-flex flex-column align-items-center row-gap-2" action="/api/order" method="POST">
-                    <label for="table<%= product.id%>">Enter your table number</label>
-                    <input class="w-25 input-color" id="table<%= product.id%>" type="number" name="table_number" min="1" max="50" step="1" required>
-                    <label for="instructions<%= product.id%>">Specific instructions for Chef!</label>
-                    <input class="w-100 input-color" id="instructions<%= product.id%>" type="textarea" name="instructions">
-                    <input type="hidden" name="productId" value="<%= product.id %>">
-                    <button type="submit" class="btn btn-primary w-50">Order Now!</button>
+            <div class="form fw-bolder h5 d-flex flex-column row-gap-4 mt-3">
+                <form class="text-center" action="/add-one-to-cart/<%= product.id %>" method="POST">
+                    <button type="submit" class="btn btn-primary w-75 fw-bolder">Order one Now!</button>
+                </form>
+                <form class="d-flex justify-content-center align-items-center gap-3" action="/add-to-cart/<%= product.id %>" method="POST">
+                    <label for="quantity">Quantity:</label>
+                    <input name="quantity" class="form-control w-25 input-color border-dark border-2 fw-bolder" id="quantity" type="number" min="1" max="100" value="1" required>
+                    <button type="submit" class="btn btn-warning w-50 fw-bolder border-dark">Add to Cart!</button>
                 </form>
             </div>
             </div>

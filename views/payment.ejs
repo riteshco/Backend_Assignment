@@ -14,12 +14,6 @@
                 <form action="/home">
                     <button type="submit" class="btn btn-outline-primary">Home</button>
                 </form>
-                <form action="/categories">
-                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
-                </form>
-                <form action="/orders">
-                    <button type="submit" class="btn btn-outline-info">Your Orders</button>
-                </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
                 </form>
@@ -27,6 +21,7 @@
         </div>
     </nav>
     <div class="h1 fw-bolder text-center mt-5">Payments</div>
+    <div class="text-primary h5 fw-bolder text-center">Your payments will show up after your order   has been approved by admin!</div>
     <div class="payments container d-flex flex-column p-5 row-gap-4">
         <% payments.forEach( payment =>{ %>
             <div class="card card w-80 p-5 bg-secondary bg-opacity-10 blur-card">

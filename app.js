@@ -59,6 +59,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/login', (req, res) => {
+    const error = req.query.error;
     if(req.cookies.token) {
         try{
             const user = jwt.verify(req.cookies.token , process.env.JWT_SECRET);
@@ -74,10 +75,11 @@ app.get('/login', (req, res) => {
             res.send('Invalid Token!')
         }
     }
-    res.render('login.ejs');
+    res.render('login.ejs' , {error});
 });
 
 app.get('/signup', (req, res) => {
+    const error = req.query.error;
     if(req.cookies.token) {
         if(req.user){
             if( req.user.user_role === 'customer' || req.user.user_role === 'chef'){
@@ -88,7 +90,7 @@ app.get('/signup', (req, res) => {
             }
         }
     }
-    res.render('signup.ejs');
+    res.render('signup.ejs' , {error});
 }
 );
 
@@ -103,12 +105,15 @@ app.post('/register' , async (req, res)=>{
     if (!username || !mobile_number || !email || !user_role || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
+    if(username.toLowerCase() === "admin"){
+        return res.redirect('/signup?error=Forbidden Username!');
+    }
     if(mobile_number.length != 10){
-        return res.status(400).json({error: 'Invalid mobile number'})
+        return res.redirect('/signup?error=Invalid Mobile Number!');
     }
     if(password.length < 8){
         return res.status(400).send('Password Length should be greater than equal to 8')
-    }
+    }                   
     try {
         const hshPswd = await hashPswd(password);
         const query = 'INSERT INTO Users (username, mobile_number, email, user_role, password_hash) VALUES (?,?,?,?,?)'
@@ -157,24 +162,24 @@ app.post('/api/register',query() ,async (req, res) => {
 app.post('/auth', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
-        return res.status(400).json({ error: 'All fields are required' });
+        res.redirect('/login?error=All fields are required!');
     }
 
     try {
         const user = await runDBCommand('SELECT * FROM Users WHERE email = ?', [email]);
         if (user.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.redirect('/login?error=User not present!');
         }
         if (user[0].username !== username) {
-            return res.status(401).json({ error: 'Invalid username' });
+            return res.redirect('/login?error=User not present!');
         }
         const isMatch = await verifyPswd(password, user[0].password_hash);
         if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid Password' });
+            return res.redirect('/login?error=Invalid Password!');
         }
         const token = generateToken(user[0], process.env.JWT_SECRET);
         if (!token) {
-            return res.status(500).json({ error: 'Failed to generate token' });
+            return res.redirect('/login?error=Failed to generate token!');
         }
         res.cookie('token', token, {
             maxAge: 60 * 60 * 1000,
@@ -193,7 +198,7 @@ app.post('/auth', async (req, res) => {
     }
     catch (error) {
         console.error('Error during authentication:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.redirect('/login?error=Internal Server Error!');
     }
 })
 
@@ -206,7 +211,7 @@ app.post('/api/auth', async (req, res) => {
     try {
         const user = await runDBCommand('SELECT * FROM Users WHERE email = ?', [email]);
         if (user.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'User not present' });
         }
         if (user[0].username !== username) {
             return res.status(401).json({ error: 'Invalid username' });
@@ -326,7 +331,50 @@ app.post('/add-to-cart/:id' , authenticateToken , async(req , res)=>{
         const customerID = req.user.id;
         const query = 'INSERT INTO OrderItems (customer_id , product_id , quantity) VALUES (? , ? , ?)';
         await runDBCommand(query , [customerID , productID , quantity]);
-        res .redirect('/home');
+        res.redirect('/cart');
+    }
+    catch (error){
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/add-to-cart/:id' , authenticateToken , async(req , res)=>{
+    try{
+        const productID = req.params.id;
+        const quantity = req.body.quantity;
+        const customerID = req.user.id;
+        const query = 'INSERT INTO OrderItems (customer_id , product_id , quantity) VALUES (? , ? , ?)';
+        await runDBCommand(query , [customerID , productID , quantity]);
+        res .redirect('/cart');
+    }
+    catch (error){
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/add-one-to-cart/:id' , authenticateToken , async(req , res)=>{
+    try{
+        const productID = req.params.id;
+        const customerID = req.user.id;
+        const query = 'INSERT INTO OrderItems (customer_id , product_id) VALUES (? , ?)';
+        await runDBCommand(query , [customerID , productID]);
+        res .redirect('/cart');
+    }
+    catch (error){
+        console.error('Error in ordering: ' , error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/remove-from-cart/:id' , authenticateToken , async(req , res)=>{
+    try{
+        const productID = req.params.id;
+        const customerID = req.user.id;
+        const query = 'DELETE FROM OrderItems WHERE customer_id = ? AND id = ?';
+        await runDBCommand(query , [customerID , productID]);
+        res.redirect('/cart');
     }
     catch (error){
         console.error('Error in ordering: ' , error);
@@ -338,7 +386,9 @@ app.get('/cart' , authenticateToken , async(req , res)=>{
     try{
         const query = 'SELECT * FROM OrderItems WHERE customer_id = ? AND order_id IS NULL';
         const orderedItems = await runDBCommand(query , [req.user.id]);
-        res.render('cart.ejs' , {orderedItems});
+        const query2 = 'SELECT id , product_name FROM Products WHERE id IN (SELECT product_id FROM OrderItems WHERE customer_id = ? AND order_id IS NULL)'
+        const products = await runDBCommand(query2 , [req.user.id]);
+        res.render('cart.ejs' , {orderedItems , products});
     }
     catch (error){
         console.error('Error in ordering: ' , error);
@@ -363,7 +413,7 @@ app.post('/api/cart/order' , authenticateToken , async(req , res)=>{
         const query3 = 'UPDATE OrderItems SET order_id = ? WHERE customer_id = ? AND order_id IS NULL';
         await runDBCommand(query3 , [order_id , req.user.id])
 
-        res.redirect('/cart');
+        res.redirect('/orders');
     }
     catch (error){  
         console.error('Error in ordering: ' , error);
@@ -377,7 +427,7 @@ app.post('/api/order', authenticateToken , async (req , res)=> {
         const table_number = req.body.table_number;
         const instructions = req.body.instructions;
         const query = 'SELECT * FROM Products WHERE id = ?';
-        const query2 = 'SELECT * FROM Users WHERE email = ?'
+        const query2 = 'SELECT * FROM Users WHERE email = ?';
         const product = await runDBCommand(query , id);
         const customer = await runDBCommand(query2 , req.user.email);
 
@@ -390,7 +440,7 @@ app.post('/api/order', authenticateToken , async (req , res)=> {
         const query4 = 'INSERT INTO OrderItems (order_id , product_id) VALUES (? , ?)';
         await runDBCommand(query4 , [order_id , product[0].id])
 
-        res.redirect('/home')           
+        res.redirect('/orders')           
     }
     catch (error) {
         console.error('Error in ordering: ' , error);

@@ -16,6 +16,9 @@
         </div>
     </nav>
     <div class="text-center h2 mt-5 fw-bolder">LOGIN</div>
+    <% if(error){ %>
+        <div class="h3 m-2 fw-bolder text-center text-danger"><%= error %></div>
+    <% } %>
     <form class="container mt-5" action="/auth" method="POST">
         <div class="form-group">
             <label for="usr">Username:</label>

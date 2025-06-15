@@ -14,9 +14,6 @@
                 <form action="/home">
                     <button type="submit" class="btn btn-outline-primary">Home</button>
                 </form>
-                <form action="/categories">
-                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
-                </form>
                 <form action="/payment">
                     <button type="submit" class="btn btn-outline-success">Payment</button>
                 </form>
@@ -41,11 +38,16 @@
                 <div>
                     Order status : <span class="text-success fw-bolder"><%= orders[i].current_status %></span>
                 </div>
-                <% }else{ %>
+                <% }else if (orders[i].current_status === "pending"){ %>
                 <div>
                     Order status : <span class="text-danger fw-bolder"><%= orders[i].current_status %></span>
                 </div>
+                <% } else { %>
+                <div>
+                    Order status : <span class="text-primary fw-bolder"><%= orders[i].current_status %></span>
+                </div>  
                 <% }; %>
+
                 <div>
                     Instructions : <%= orders[i].instructions %>
                 </div>

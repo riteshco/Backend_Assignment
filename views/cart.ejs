@@ -36,7 +36,7 @@
                    Ordered item id: <%= orderedItems[i].id %>
                 </div>
                 <div>
-                    Product ID: <%= orderedItems[i].product_id %>
+                    Product Name: <% for(let j=0 ; j < products.length;j++){ if (products[j].id === orderedItems[i].product_id){ %><%= products[j].product_name %><% }} %>
                 </div>
                 <div>
                     Quantity : <%= orderedItems[i].quantity %>

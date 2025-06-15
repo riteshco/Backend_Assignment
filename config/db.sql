@@ -51,6 +51,9 @@ CREATE TABLE Payments (
     FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE
 );  
 
+-- admin account
+INSERT INTO Users (username , mobile_number , email , user_role , password_hash) VALUES ('admin' , '1234512345' , 'admin@gmail.com' , 'admin' , '$2b$10$CXu.VPoykiOiBVfVMQ1Wm.qqHns7pAjc3QKAv4ZWEgRtfO/uhn9fK');
+
 -- demo products
 INSERT INTO Products (product_name , price , category , image_url) VALUES ('Pizza' , 399 , 'Fast Food' , '/demo_products/pizza.jpg');
 INSERT INTO Products (product_name , price , category , image_url) VALUES ('Burger' , 129 , 'Fast Food' , '/demo_products/burger.jpg');
