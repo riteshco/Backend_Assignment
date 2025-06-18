@@ -17,18 +17,21 @@
                 <form action="/admin">
                     <button type="submit" class="btn btn-outline-success">Admin Panel</button>
                 </form>
+                <% } else { %>
+                    <form action="/home">
+                        <button type="submit" class="btn btn-outline-primary">Home</button>
+                    </form>
                 <% } %>
-                <form action="/home">
-                    <button type="submit" class="btn btn-outline-primary">Home</button>
-                </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
                 </form>
             </div>
         </div>
-
     </nav>
     <div class="text-center h2 mt-5 fw-bolder">Add - Food</div>
+    <% if(msg){ %>
+        <div class="h3 m-2 fw-bolder text-center text-success"><%= msg %></div>
+    <% } %>
     <form class="container mt-5 w-50" action="/api/add-food" method="POST">
     <div class="form-group">
         <label for="product-name">Product Name:</label>
@@ -38,8 +41,8 @@
         <label for="cat">Category:</label>
         <input name="category" type="text" class="form-control" id="cat" maxlength="16" required>
         <label for="url">Food image url:</label>
-        <input name="image_url" type="url" class="form-control" placeholder="(if not available , type null)" required >
-        <button type="submit" class="btn btn-success">Add to the List</button>
+        <input name="image_url" type="url" id="url" class="form-control" placeholder="(if not available , leave it blank)" maxlength="200">
+        <button type="submit" class="btn btn-success">Add to the List</button>  
     </div>
     </form>
 </body>

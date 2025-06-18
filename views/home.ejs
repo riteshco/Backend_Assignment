@@ -17,11 +17,11 @@
                 <form action="/categories">
                     <button type="submit" class="btn btn-outline-warning">Categories Section</button>
                 </form>
-                <form action="/payment">
-                    <button type="submit" class="btn btn-outline-success">Payment</button>
+                <form action="/past-orders">
+                    <button type="submit" class="btn btn-outline-success">Past - Orders</button>
                 </form>
                 <form action="/orders">
-                    <button type="submit" class="btn btn-outline-info">Your Orders</button>
+                    <button type="submit" class="btn btn-outline-info">Your Ongoing Orders</button>
                 </form>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
@@ -36,7 +36,7 @@
     </div>
     <div class="search-bar text-center container">
         <form action="/home" class="d-flex flex-column align-items-center row-gap-2 mb-5">
-            <input type="text" name="search" placeholder="Search for your product" class="w-50 border-3 input-color-2 form-control">
+            <input type="text" name="search" placeholder="Search for your product" class="w-50 border-3 input-color-2 form-control border-dark">
             <div class="form-group">
                 <label for="price" class="fw-bolder">Price Filter:</label>
                 <select name="price" id="price" class="rounded input-color fw-bold">
@@ -67,9 +67,9 @@
                 <form class="text-center" action="/add-one-to-cart/<%= product.id %>" method="POST">
                     <button type="submit" class="btn btn-primary w-75 fw-bolder">Order one Now!</button>
                 </form>
-                <form class="d-flex justify-content-center align-items-center gap-3" action="/add-to-cart/<%= product.id %>" method="POST">
+                <form class="d-flex flex-wrap justify-content-center align-items-center gap-3" action="/add-to-cart/<%= product.id %>" method="POST">
                     <label for="quantity">Quantity:</label>
-                    <input name="quantity" class="form-control w-25 input-color border-dark border-2 fw-bolder" id="quantity" type="number" min="1" max="100" value="1" required>
+                    <input name="quantity" class="form-control w-25 input-color border-dark border-2 fw-bolder" id="quantity" type="number" min="1" max="100" required>
                     <button type="submit" class="btn btn-warning w-50 fw-bolder border-dark">Add to Cart!</button>
                 </form>
             </div>

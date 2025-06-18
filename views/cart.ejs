@@ -23,6 +23,11 @@
     <div class="h1 fw-bolder text-center">
         Your Cart!
     </div>
+    <% if (msg){ %>
+    <div class="alert alert-success text-center">
+    <%= msg %>
+    </div>
+    <% } %>
     <div class="orderedItems container">
         <% for(let i=0; i< orderedItems.length; ++i){ %>
             <div class="card w-80 p-5 bg-secondary bg-opacity-10 blur-card">

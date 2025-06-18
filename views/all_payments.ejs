@@ -27,11 +27,22 @@
                     <div class="h1 fw-bolder">Payment #<%= payment.id %></div>
                     <div class="h4">Customer ID : <%= payment.user_id %> </div>
                     <div class="h4">Total Amount : ₹<%= payment.Total_amount %></div>
-                    <div class="h4">Status : "<%= payment.payment_status %>"</div>
+                    <% if (payment.payment_status === "pending"){ %>
+                    <div class="h4">Status : "<span class="fw-bolder text-danger"><%= payment.payment_status %></span>"</div>
+                    <% } else if (payment.payment_status === "completed"){ %>
+                    <div class="h4">Status : "<span class="fw-bolder"><%= payment.payment_status %></span>"</div>
+                    <% } %>
                 </div>
-                <form action="/api/delete-payment/<%= payment.id %>" method="POST">
-                    <button type="submit" class="btn btn-outline-danger">Delete</button>
-                </form>
+                <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
+                    <form action="/api/delete-payment/<%= payment.id %>" method="POST">
+                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    </form>
+                    <%if (payment.payment_status === "completed"){ %>
+                        <form action="/gen-bill/<%= payment.id %>" method="POST">
+                            <button type="submit" class="btn btn-outline-info">Generate Bill</button>
+                        </form>
+                        <% } %>    
+                </div>
             </div>
         <% }); %> 
     </div>

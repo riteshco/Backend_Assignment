@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>order - FOODOOR</title>
+</head>
+
+<body class="warm-gradient">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">FOODOOR</a>
+            <div class="buttons d-flex gap-4">
+                <form action="/home">
+                    <button type="submit" class="btn btn-outline-primary">Home</button>
+                </form>
+                <form action="/api/logout" method="POST">
+                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class="h1 fw-bolder text-center mt-5">Past - Orders</div>
+    <% if(orders.length> 0){ %>
+        <div class="orders container d-flex flex-column p-5 row-gap-4">
+            <% let i=0; %>
+            <% orders.forEach( order=>{ %>
+                <div class="card card w-80 p-5 bg-secondary bg-opacity-10 blur-card">
+                    <div>
+                        Order #<%= order.id %>
+                    </div>
+                    <div>
+                        Payment ID: <%= payments[i].id %>
+                    </div>
+                    <div>
+                        Total Amount Paid: ₹<%= payments[i].Total_amount %>
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <form action="/api/delete-order/<%= orders[i].id %>" method="POST">
+                            <button type="submit" class="btn btn-danger">Delete this order!</button>
+                        </form>
+                        <form action="/order/items/<%= orders[i].id %>">
+                            <button type="submit" class="btn btn-info">View Items</button>
+                        </form>
+                        <form action="/order/payment/<%= orders[i].id %>">
+                            <button type="submit" class="btn btn-secondary">Payment Details</button>
+                        </form>
+                        <form action="/order/bill/<%= orders[i].id %>">
+                            <button type="submit" class="btn btn-warning">View Bill</button>
+                        </form>
+                    </div>
+                </div>
+                <% ++i %>
+            <% }) %>
+        </div>
+        <% } else { %>
+            <div class="h1 fw-bolder text-center mt-5">
+                No past orders found!
+            </div>
+            <% } %>
+</body>
+
+</html>

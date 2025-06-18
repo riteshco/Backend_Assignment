@@ -20,16 +20,17 @@
             </div>
         </div>
     </nav>
-    <div class="orders">
+    <% if (orders.length > 0){ %>
+    <div class="h1 fw-bolder text-center mt-5">
+        Your Orders!
+    </div>
+    <div class="orders d-flex flex-column align-items-center justify-content-center w-100 m-0 flex-wrap gap-4 mx-auto mt-5">
         <% for(let i=0; i< orders.length; ++i){ %>
-            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card">
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card container row-gap-2">
                 <div>
                    Order id: <%= orders[i].id %>
                 </div>
                 <div>
-                <div>
-                    Product Name: <%= productNames[i]%>
-                </div>
                 </div>
                 <% if(orders[i].current_status === "delivered"){ %>
                 <div>
@@ -48,12 +49,35 @@
                 <div>
                     Instructions : <%= orders[i].instructions %>
                 </div>
-                <form action="/api/delete-order/<%= orders[i].id %>" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete this order!</button>
-                </form>
-                
+                <div class="d-flex gap-2">
+                    <form action="/api/delete-order/<%= orders[i].id %>" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete this order!</button>
+                    </form>
+                    <form action="/order/items/<%= orders[i].id %>">
+                        <button type="submit" class="btn btn-info">View Items</button>
+                    </form>
+                    <% if (paymentStatusRows[i].payment_status === "pending"){ %>
+                    <form action="/order/payment/<%= orders[i].id %>">
+                        <button type="submit" class="btn btn-success">Payment</button>
+                    </form>
+                    <% } else { %>
+                    <form action="/order/payment/<%= orders[i].id %>">
+                        <button type="submit" class="btn btn-secondary">Payment Details</button>
+                    </form> 
+                    <% } %>
+                    <% if (orders[i].current_status !== "pending"){ %>
+                    <form action="/order/bill/<%= orders[i].id %>">
+                        <button type="submit" class="btn btn-warning">View Bill</button>
+                    </form>
+                    <% } %>    
+                </div>
             </div>
         <% }%>
     </div>
+    <% } else { %>
+    <div class="h1 fw-bolder text-center mt-5">
+        You have no orders yet!
+    </div>
+    <% } %>
 </body>
 </html>
