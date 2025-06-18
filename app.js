@@ -262,12 +262,6 @@ app.post('/api/auth', async (req, res) => {
         if (!token) {
             return res.status(500).json({ error: 'Failed to generate token' });
         }
-        res.cookie('token', token, {
-            maxAge: 60 * 60 * 1000,
-            httpOnly: true,
-            secure: false,
-            sameSite: 'Lax'
-        });
         console.log('User authenticated successfully:', user[0].username);
         res.json({
             token, user: {
@@ -306,16 +300,19 @@ app.get('/admin', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 16 }).withMessage('Search must be Less than 16 characters'), async (req, res) => {
-    try {
-        if (!req.user) {
-            res.status(401);
-            const error = new Error('Unauthorized access');
-            error.status = 401;
-            error.message = 'You must be logged in to access this page';
-            console.error('Unauthorized access:', error.message);
-            return res.render('error.ejs', { error });
-        }
+    app.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 16 }).withMessage('Search must be Less than 16 characters'), async (req, res) => {
+        try {
+            if (!req.user) {
+                res.status(401);
+                const error = new Error('Unauthorized access');
+                error.status = 401;
+                error.message = 'You must be logged in to access this page';
+                console.error('Unauthorized access:', error.message);
+                return res.render('error.ejs', { error });
+            }
+            if(req.user.user_role === "admin"){
+                return res.redirect('/admin');
+            }
         const query = 'SELECT user_role FROM Users WHERE email = ?';
         const user_roleArr = await runDBCommand(query, [req.user.email])
         if (user_roleArr[0].user_role === 'chef' || user_roleArr[0].user_role === "admin") {
@@ -809,7 +806,7 @@ app.get('/edit-user/:id', authenticateToken, async (req, res) => {
             res.render('edit.ejs', { user: req.user , userTo: user[0], role: req.user.user_role });
         }
         catch (error) {
-            rese.status(500);
+            res.status(500);
             error.status = 500;
             error.message = 'Error in fetching user for edit';
             console.error('Error in fetching user for edit:', error);
