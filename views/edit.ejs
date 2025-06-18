@@ -25,14 +25,14 @@
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
         <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
             <div class="title text-center">
-                <div class="h1 fw-bolder">User #<%= user.id %>
+                <div class="h1 fw-bolder">User #<%= userTo.id %>
                 </div>
             </div>
             <form action="/edit-user" method="POST">
-                <input type="hidden" value="<%= user.id %>" name="id">
+                <input type="hidden" value="<%= userTo.id %>" name="id">
                 <div class="form-group">
                     <label for="usr">Username:</label>
-                    <input name="username" type="text" class="form-control dark-input fw-bolder text-light" id="usr" minlength="3" maxlength="16" value="<%= user.username %>"
+                    <input name="username" type="text" class="form-control dark-input fw-bolder text-light" id="usr" minlength="3" maxlength="16" value="<%= userTo.username %>"
                         required>
 
                     <label for="user_role">Change the role as:</label>

@@ -26,6 +26,15 @@ app.use(cookieParser());
 app.use(express.urlencoded());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  if (req.headers.accept && req.headers.accept.includes('text/html')) {
+    const cleanPath = req.path.split('/')[1];
+    res.locals.currentPage = cleanPath;
+}
+  res.locals.user = req.user;
+  next();
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
@@ -302,7 +311,7 @@ app.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 16 }
         if (user_roleArr[0].user_role === 'chef' || user_roleArr[0].user_role === "admin") {
             const orders = await runDBCommand('SELECT * FROM Orders');
             const payments = await runDBCommand('SELECT payment_status FROM Payments WHERE order_id IN (SELECT id FROM Orders)')
-            res.render('chef.ejs', { orders, payments });
+            res.render('chef.ejs', { orders, payments , user: req.user });
         }
         else if (user_roleArr[0].user_role === 'customer') {
             const result = validationResult(req)
@@ -340,7 +349,7 @@ app.get('/users', authenticateToken, async (req, res) => {
         try {
             let extra = 0;
             const users = await runDBCommand('SELECT * FROM Users');
-            res.render('users.ejs', { users, extra })
+            res.render('users.ejs', { users, extra , user: req.user });
         } catch (error) {
             res.status(500);
             error.status = 500;
@@ -360,7 +369,7 @@ app.get('/users/:id', authenticateToken, async (req, res) => {
         try {
             let extra = 1;
             const users = await runDBCommand('SELECT * FROM Users WHERE id=?', [req.params.id]);
-            res.render('users.ejs', { users, extra });
+            res.render('users.ejs', { users, extra , user:req.user});
         } catch (error) {
             res.status(500);
             error.status = 500;
@@ -435,7 +444,7 @@ app.get('/cart', authenticateToken, async (req, res) => {
         const orderedItems = await runDBCommand(query, [req.user.id]);
         const query2 = 'SELECT id , product_name FROM Products WHERE id IN (SELECT product_id FROM OrderItems WHERE customer_id = ? AND order_id IS NULL)'
         const products = await runDBCommand(query2, [req.user.id]);
-        res.render('cart.ejs', { orderedItems, products, msg });
+        res.render('cart.ejs', { orderedItems, products, msg  , user: req.user });
     }
     catch (error) {
         res.status(500);
@@ -508,7 +517,7 @@ app.get('/orders', authenticateToken, async (req, res) => {
 
         const query4 = 'SELECT DISTINCT p.payment_status FROM Payments p JOIN Orders o ON p.order_id = o.id WHERE o.customer_id = ?';
         const paymentStatusRows = await runDBCommand(query4, [customer[0].id]);
-        res.render('orders.ejs', { orders, productNames, paymentStatusRows });
+        res.render('orders.ejs', { orders, productNames, paymentStatusRows , user: req.user });
 
     } catch (error) {
         res.status(500);
@@ -525,7 +534,7 @@ app.get('/past-orders', authenticateToken, async (req, res) => {
         const orders = await runDBCommand(query, [req.user.id]);
         const query2 = 'SELECT * FROM Payments WHERE user_id = ? AND payment_status = "completed" AND order_id IN (SELECT id FROM Orders WHERE customer_id = ? AND current_status = "delivered")';
         const payments = await runDBCommand(query2, [req.user.id , req.user.id]);
-        res.render('past-orders.ejs', { orders , payments });
+        res.render('past-orders.ejs', { orders , payments , user: req.user });
     }
     catch (error) {
         res.status(500);
@@ -562,7 +571,7 @@ app.get('/all-orders', authenticateToken, async (req, res) => {
     if (req.user.user_role === "admin") {
         try {
             const orders = await runDBCommand('SELECT * FROM Orders');
-            res.render('all_orders.ejs', { orders });
+            res.render('all_orders.ejs', { orders , user: req.user });
         }
         catch (err) {
             res.status(500);
@@ -580,7 +589,7 @@ app.get('/all-payments', authenticateToken, async (req, res) => {
     if (req.user.user_role === "admin") {
         try {
             const payments = await runDBCommand('SELECT * FROM Payments');
-            res.render("all_payments.ejs", { payments });
+            res.render("all_payments.ejs", { payments , user: req.user });
         }
         catch (error) {
             res.status(500);
@@ -676,7 +685,7 @@ app.get('/categories', authenticateToken, async (req, res) => {
             }
         }
         const categories = await runDBCommand('SELECT DISTINCT category FROM Products');
-        res.render('categories.ejs', { user: req.user, categories, products });
+        res.render('categories.ejs', { user: req.user, categories, products  , user: req.user });
     }
     catch (error) {
         res.status(500);
@@ -787,7 +796,7 @@ app.get('/edit-user/:id', authenticateToken, async (req, res) => {
             if (user.length === 0) {
                 res.redirect('/users');
             }
-            res.render('edit.ejs', { user: user[0], role: req.user.user_role });
+            res.render('edit.ejs', { user: req.user , userTo: user[0], role: req.user.user_role });
         }
         catch (error) {
             rese.status(500);
@@ -801,7 +810,7 @@ app.get('/edit-user/:id', authenticateToken, async (req, res) => {
         if (req.user.id === req.params.id) {
             try {
                 const user = await runDBCommand('SELECT * FROM Users WHERE id = ?', [req.user.id])
-                res.render('edit.ejs', { user, role: req.user.user_role });
+                res.render('edit.ejs', { user : req.user, userTo : user[0] , role: req.user.user_role });
             }
             catch (error) {
                 res.status(500);
@@ -968,7 +977,7 @@ app.get('/order/items/:id', authenticateToken, async (req, res) => {
     try {
         const orderItems = await runDBCommand('SELECT * FROM OrderItems WHERE order_id = ?', [req.params.id]);
         const products = await runDBCommand('SELECT * FROM Products WHERE id IN (SELECT product_id FROM OrderItems WHERE order_id = ?)', [req.params.id]);
-        res.render('order_items.ejs', { orderId: req.params.id, orderItems, products });
+        res.render('order_items.ejs', { orderId: req.params.id, orderItems, products , user: req.user });
     }
     catch (error) {
         res.status(500);
@@ -990,7 +999,7 @@ app.get('/order/payment/:id', authenticateToken, async (req, res) => {
             console.error('Payment not found:', error.message);
             return res.render('error.ejs', { error });
         } else {
-            res.render('order_payment.ejs', { orderId: req.params.id, payment: payment[0] });
+            res.render('order_payment.ejs', { orderId: req.params.id, payment: payment[0] , user:req.user });
         }
     }
     catch (error) {
@@ -1014,7 +1023,7 @@ app.get('/order/bill/:id', authenticateToken, async (req, res) => {
             console.error('Bill not found:', error.message);
             return res.render('error.ejs', { error });
         } else {
-            res.render('order_bill.ejs', { orderId: req.params.id, payment: payment[0] });
+            res.render('order_bill.ejs', { orderId: req.params.id, payment: payment[0] , user: req.user });
         }
     }
     catch (error) {

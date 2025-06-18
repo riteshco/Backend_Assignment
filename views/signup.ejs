@@ -9,12 +9,7 @@
 </head>
 
 <body class="warm-gradient">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">FOODOOR</a>
-            <a class="navbar-brand" href="#">SIGNUP PAGE</a>
-        </div>
-    </nav>
+    <%- include('partials/navbar')  %>
     <div class="text-center h2 mt-5 fw-bolder">SIGNUP</div>
     <% if(error){ %>
         <div class="h3 m-2 fw-bolder text-center text-danger"><%= error %></div>

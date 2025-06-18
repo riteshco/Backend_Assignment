@@ -7,31 +7,7 @@
     <title>ADMIN - FOODOOR</title>
 </head>
 <body class="black-gradient">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">FOODOOR - ADMIN PANEL</a>
-            <div class="buttons d-flex gap-4">
-                <form action="/all-payments">
-                    <button type="submit" class="btn btn-outline-success">Payments</button>
-                </form>
-                <form action="/add-food">
-                    <button type="submit" class="btn btn-outline-primary">Add Food</button>
-                </form>
-                <form action="/categories">
-                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
-                </form>
-                <form action="/all-orders">
-                    <button type="submit" class="btn btn-outline-info">All Orders</button>
-                </form>
-                <form action="/users">
-                    <button type="submit" class="btn btn-outline-light">All Users</button>
-                </form>
-                <form action="/api/logout" method="POST">
-                    <button type="submit" class="btn btn-outline-danger">Logout</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+    <%- include('partials/navbar') %>
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">    
         <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
             <div class="title text-center">
