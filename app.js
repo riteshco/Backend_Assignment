@@ -31,7 +31,11 @@ app.use((req, res, next) => {
     const cleanPath = req.path.split('/')[1];
     res.locals.currentPage = cleanPath;
 }
-  res.locals.user = req.user;
+else{
+    res.locals.currentPage = '';
+}
+  res.locals.user = req.user || null;
+  res.locals.message = req.session.message || null;
   next();
 });
 
@@ -54,7 +58,7 @@ app.listen(port, () => {
 }
 );
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => {    
     if (req.cookies.token) {
         try {
             const user = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -258,6 +262,12 @@ app.post('/api/auth', async (req, res) => {
         if (!token) {
             return res.status(500).json({ error: 'Failed to generate token' });
         }
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Lax'
+        });
         console.log('User authenticated successfully:', user[0].username);
         res.json({
             token, user: {

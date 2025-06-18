@@ -12,6 +12,7 @@
 </head>
 <body class="black-gradient">
     <%- include('partials/navbar') %>
+    <% if (users.length > 0){ %>
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">   
         <% users.forEach(user =>{ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
@@ -28,6 +29,11 @@
                 </form>
             </div>
         <% }); %> 
+      <% } else { %>
+        <div class="alert alert-warning w-100 text-center" role="alert">
+            No users found!
+        </div> 
+        <% } %> 
     </div>
 </body>
 </html>
