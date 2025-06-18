@@ -192,6 +192,10 @@ app.post('/api/register', query(), async (req, res) => {
 });
 
 app.post('/auth', async (req, res) => {
+    if(req.cookies.token){
+        console.log('Clearing existing token cookie');
+        res.clearCookie('token');
+    }
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
         req.session.message = "All fields are required!";
