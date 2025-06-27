@@ -56,7 +56,7 @@
                                 action="/add-to-cart/<%= product.id %>" method="POST">
                                 <label for="quantity">Quantity:</label>
                                 <input name="quantity"
-                                    class="form-control w-25 input-color border-dark border-2 fw-bolder" id="quantity"
+                                    class="form-control w-25 min-width input-color border-dark border-2 fw-bolder" id="quantity"
                                     type="number" min="1" max="100" required>
                                 <button type="submit" class="btn btn-warning w-50 fw-bolder border-dark">Add to
                                     Cart!</button>
@@ -68,7 +68,7 @@
                                     action="/new-name/<%= product.id %>" method="POST">
                                     <label for="name">New Name: </label>
                                     <input name="name"
-                                        class="form-control w-50                         input-color border-dark border-2 fw-bolder"
+                                        class="form-control w-50 input-color border-dark border-2 fw-bolder"
                                         id="name" type="text" minlength="3" maxlength="16" required>
                                     <button type="submit" class="btn btn-primary w-75 fw-bolder">Update Product name</button>
                                 </form>
@@ -76,7 +76,7 @@
                                     action="/new-price/<%= product.id %>" method="POST">
                                     <label for="price">New Price: </label>
                                     <input name="price"
-                                        class="form-control w-25 input-color border-dark border-2 fw-bolder"
+                                        class="form-control w-25 min-width input-color border-dark border-2 fw-bolder"
                                         id="price" type="number" step="0.01" min="0" max="5000" required>
                                     <button type="submit" class="btn btn-primary w-75 fw-bolder">Update Price</button>
                                 </form>

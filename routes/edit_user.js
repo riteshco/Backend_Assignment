@@ -81,9 +81,20 @@ router.get('/edit-user/:id', authenticateToken, async (req, res) => {
 
 router.post('/edit-user', authenticateToken, async (req, res) => {
     if (req.user.user_role === "admin") {
-        const { username, user_role, id } = req.body;
+        let { username, user_role, id } = req.body;
         if (!username || !user_role) {
             return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        username = username.trim();
+        user_role = user_role.trim();
+
+        if (username.length < 3 || username.length > 16) {
+            res.status(400);
+            error.status = 400;
+            error.message = 'Username length should be between 3 and 16';
+            console.error('Username length should be between 3 and 16');
+            res.render('error.ejs', { error });
         }
 
         try {

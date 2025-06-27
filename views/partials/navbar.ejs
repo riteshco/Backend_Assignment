@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <div class="container-fluid">
+    <div class="container-fluid navbar-height">
         <% if (currentPage==='login' ){ %>
             <a class="navbar-brand" href="/">FOODOOR</a>
             <a class="navbar-brand" href="#">LOGIN PAGE</a>
@@ -9,24 +9,24 @@
                 <% } else { %>
                 <a class="navbar-brand" href="#">FOODOOR</a>
                 </div>
-                <div class="buttons d-flex gap-4 w-75 justify-content-end me-2">
+                <div class="buttons d-flex text-nowrap gap-4 w-75 justify-content-end me-2 navbar-height">
                 <% if (user.user_role==="customer" ){ %>
                     <% if (currentPage==='home' ){ %>
                                 <form action="/cart">
-                                    <button type="submit" class="btn btn-outline-primary">Your Cart</button>
+                                    <button type="submit" class="btn btn-outline-primary d-flex navbar-height">Your Cart</button>
                                 </form>
                                 <form action="/categories">
-                                    <button type="submit" class="btn btn-outline-warning">Categories Section</button>
+                                    <button type="submit" class="btn btn-outline-warning navbar-height">Categories Section</button>
                                 </form>
                                 <form action="/past-orders">
-                                    <button type="submit" class="btn btn-outline-success">Past - Orders</button>
+                                    <button type="submit" class="btn btn-outline-success navbar-height">Past - Orders</button>
                                 </form>
                                 <form action="/orders">
-                                    <button type="submit" class="btn btn-outline-info">Your Ongoing Orders</button>
+                                    <button type="submit" class="btn btn-outline-info navbar-height">Your Ongoing Orders</button>
                                 </form>
                                 <% } else {%>
                                     <form action="/home">
-                                        <button type="submit" class="btn btn-outline-primary">Home</button>
+                                        <button type="submit" class="btn btn-outline-primary navbar-height">Home</button>
                                     </form>
                                 <% } %>
                     <% } else if (user.user_role === 'chef'){ %>

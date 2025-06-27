@@ -29,9 +29,27 @@ router.get('/add-food', authenticateToken, (req, res) => {
 router.post('/api/add-food', authenticateToken, async (req, res) => {
     if (req.user.user_role === "admin" || req.user.user_role === "chef") {
         try {
-            const { name, price, category, image_url } = req.body;
+            let { name, price, category, image_url } = req.body;
             if (!name || !price || !category) {
                 return res.status(400).json({ error: 'All fields are required' });
+            }
+            name = name.trim();
+            category = category.trim();
+            
+            price = parseFloat(price);
+            if (isNaN(price) || price <= 0) {
+                return res.status(400).json({ error: 'Price must be a valid positive number' });
+            }
+
+            const checkQuery = 'SELECT * FROM Products WHERE LOWER(product_name) = LOWER(?)';
+            const existing = await runDBCommand(checkQuery, [name]);
+            if (existing.length > 0) {
+            req.session.message = "Food already exists!";
+                return res.redirect('/add-food');
+                }
+
+            if (image_url) {
+                image_url = image_url.trim();
             }
             if (name.length < 3 || name.length > 16) {
                 return res.status(400).json({ error: 'Name length should be between 3 and 16' })

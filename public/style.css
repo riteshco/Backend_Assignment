@@ -3992,7 +3992,11 @@ textarea.form-control-lg {
 .navbar-brand:hover, .navbar-brand:focus {
   color: var(--bs-navbar-brand-hover-color);
 }
-
+.navbar-height{
+  max-height: 55px;
+  display: flex;
+  align-items: center;
+}
 .navbar-nav {
   --bs-nav-link-padding-x: 0;
   --bs-nav-link-padding-y: 0.5rem;
@@ -7632,6 +7636,10 @@ textarea.form-control-lg {
 
 .w-25 {
   width: 25% !important;
+}
+.min-width{
+  min-width: 100px;
+  min-height: 50px;
 }
 
 .w-50 {

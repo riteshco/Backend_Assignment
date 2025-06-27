@@ -33,12 +33,15 @@ router.post('/auth', async (req, res) => {
         console.log('Clearing existing token cookie');
         res.clearCookie('token');
     }
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
     if (!username || !email || !password) {
         req.session.message = "All fields are required!";
         res.redirect('/login');
     }
-
+    username = username.trim();
+    email = email.trim();
+    password = password.trim();
+    
     try {
         const user = await runDBCommand('SELECT * FROM Users WHERE email = ?', [email]);
         if (user.length === 0) {
@@ -82,10 +85,14 @@ router.post('/auth', async (req, res) => {
 })
 
 router.post('/api/auth', async (req, res) => {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
+
+    username = username.trim();
+    email = email.trim();
+    password = password.trim();
 
     try {
         const user = await runDBCommand('SELECT * FROM Users WHERE email = ?', [email]);

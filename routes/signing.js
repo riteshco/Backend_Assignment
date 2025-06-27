@@ -25,10 +25,15 @@ router.get('/signup', (req, res) => {
 );
 
 router.post('/register', async (req, res) => {
-    const { username, mobile_number, email, password } = req.body;
+    let { username, mobile_number, email, password } = req.body;
     if (!username || !mobile_number || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
+    
+    username = username.trim();
+    email = email.trim();
+    password = password.trim();
+
     if (username.toLowerCase() === "admin") {
         req.session.message = "Forbidden Username!";
         return res.redirect('/signup');
@@ -62,10 +67,15 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/api/register', query(), async (req, res) => {
-    const { username, mobile_number, email, password } = req.body;
+    let { username, mobile_number, email, password } = req.body;
     if (!username || !mobile_number || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
+
+    username = username.trim();
+    email = email.trim();
+    password = password.trim();
+
     if (mobile_number.length != 10) {
         return res.status(400).json({ error: 'Invalid mobile number' })
     }

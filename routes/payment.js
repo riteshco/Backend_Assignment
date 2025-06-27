@@ -35,7 +35,9 @@ router.get('/all-payments', authenticateToken, async (req, res) => {
             const msg = req.session.msg;
             req.session.msg = null;
             const payments = await runDBCommand('SELECT * FROM Payments');
-            res.render("all_payments.ejs", { payments , user: req.user , msg});
+            const query = 'SELECT * FROM Orders WHERE id IN (SELECT order_id FROM Payments WHERE id IN (?))';
+            const orders = await runDBCommand(query, [payments.map(payment => payment.id)]);
+            res.render("all_payments.ejs", { payments , user: req.user , orders , msg});
         }
         catch (error) {
             res.status(500);
@@ -50,24 +52,5 @@ router.get('/all-payments', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/api/delete-payment/:id', authenticateToken, async (req, res) => {
-    let id = -1;
-    try {
-
-        if (req.user.user_role == "admin") {
-            id = req.params.id;
-            const query = 'DELETE FROM Payments WHERE id = ?';
-            await runDBCommand(query, id);
-            res.redirect('/all-payments');
-        }
-    }
-    catch (error) {
-        res.status(500);
-        error.status = 500;
-        error.message = 'Error in deleting payment';
-        console.error('Error in deleting payment:', error);
-        res.render('error.ejs', { error });
-    }
-});
 
 export default router;

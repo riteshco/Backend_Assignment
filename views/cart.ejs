@@ -16,6 +16,7 @@
     <%= msg %>
     </div>
     <% } %>
+    <% if (orderedItems.length > 0){ %>
     <div class="orderedItems container">
         <% for(let i=0; i< orderedItems.length; ++i){ %>
             <div class="card w-80 p-5 bg-secondary bg-opacity-10 blur-card">
@@ -41,5 +42,10 @@
         <input class="w-100 input-color form-control border-dark border-2" id="instructions<%= orderedItems.id%>" type="textarea" name="instructions">
         <button type="submit" class="btn btn-success form-control" >Order Now!</button>
     </form>
+    <% } else { %>
+    <div class="h1 text-center text-primary fw-bolder mt-5">
+        Your cart is empty!
+    </div>
+    <% } %>
 </body>
 </html>
