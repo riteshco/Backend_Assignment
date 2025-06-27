@@ -14,6 +14,7 @@
     </div>
     <div class="orders d-flex flex-column align-items-center justify-content-center w-100 m-0 flex-wrap gap-4 mx-auto mt-5">
         <% for(let i=0; i< orders.length; ++i){ %>
+            <% if (orders[i].current_status !== "delivered"){ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card container row-gap-2">
                 <div>
                    Order id: <%= orders[i].id %>
@@ -44,6 +45,7 @@
                     <form action="/order/items/<%= orders[i].id %>">
                         <button type="submit" class="btn btn-info">View Items</button>
                     </form>
+                    <% if (paymentStatusRows[i]){ %>
                     <% if (paymentStatusRows[i].payment_status === "pending"){ %>
                     <form action="/order/payment/<%= orders[i].id %>">
                         <button type="submit" class="btn btn-success">Payment</button>
@@ -53,6 +55,7 @@
                         <button type="submit" class="btn btn-secondary">Payment Details</button>
                     </form> 
                     <% } %>
+                    <% } %>
                     <% if (orders[i].current_status !== "pending"){ %>
                     <form action="/order/bill/<%= orders[i].id %>">
                         <button type="submit" class="btn btn-warning">View Bill</button>
@@ -60,6 +63,7 @@
                     <% } %>    
                 </div>
             </div>
+            <% } %>
         <% }%>
     </div>
     <% } else { %>

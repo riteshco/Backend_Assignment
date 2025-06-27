@@ -9,6 +9,11 @@
 <body class="black-gradient">
     <%- include('partials/navbar') %>
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">   
+        <% if (msg){ %>
+        <div class="alert alert-success w-100 text-center" role="alert">
+            <%= msg %>
+        </div>
+        <% } %>    
         <% payments.forEach(payment =>{ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
                 <div class="title text-center">
