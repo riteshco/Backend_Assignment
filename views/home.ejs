@@ -102,4 +102,12 @@
         <% } %>
     <% } %>
 </body>
+<script>
+    document.querySelector('form[action="/home"]').addEventListener('submit', function (e) {
+        const input = this.querySelector('input[name="search"]');
+        if (input) {
+            input.value = encodeURIComponent(input.value.trim());
+        }
+    });
+</script>
 </html>
