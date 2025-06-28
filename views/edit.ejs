@@ -9,19 +9,7 @@
 </head>
 
 <body class="black-gradient">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">FOODOOR</a>
-            <div class="buttons d-flex gap-4">
-                <form action="/admin">
-                    <button type="submit" class="btn btn-outline-success">Admin Panel</button>
-                </form>
-                <form action="/api/logout" method="POST">
-                    <button type="submit" class="btn btn-outline-danger">Logout</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+    <%- include('partials/navbar') %>
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">
         <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
             <div class="title text-center">

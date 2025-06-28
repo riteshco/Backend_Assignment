@@ -24,13 +24,18 @@
                                 <form action="/orders">
                                     <button type="submit" class="btn btn-outline-info navbar-height">Your Ongoing Orders</button>
                                 </form>
-                                <% } else {%>
-                                    <form action="/home">
-                                        <button type="submit" class="btn btn-outline-primary navbar-height">Home</button>
-                                    </form>
-                                <% } %>
-                    <% } else if (user.user_role === 'chef'){ %>
-                        <% if (currentPage === 'home'){ %>
+                    <% } else {%>
+                        <form action="/home">
+                            <button type="submit" class="btn btn-outline-primary navbar-height">Home</button>
+                        </form>
+                    <% } %>
+                    <% if (currentPage === "order"){ %>
+                        <form action="/orders">
+                            <button type="submit" class="btn btn-outline-info navbar-height">Back</button>
+                        </form>
+                    <% } %>
+                <% } else if (user.user_role === 'chef'){ %>
+                    <% if (currentPage === 'home'){ %>
                         <form action="/add-food">
                             <button type="submit" class="btn btn-outline-info">Add Food</button>
                         </form>
@@ -71,7 +76,13 @@
                             <button type="submit" class="btn btn-outline-success">Admin Panel</button>
                         </form>
                     <% } %>
-                <% } %>    
+                    <% if (currentPage === 'edit-user'){ %>
+                        <form action="/users">
+                            <button type="submit" class="btn btn-outline-secondary">Back to Users</button>
+                        </form> 
+                    <% } %>
+
+                <% } %>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Logout</button>
                 </form>

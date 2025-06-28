@@ -4,13 +4,29 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { hashPswd } from '../utils/helpers.js';
 import { query } from 'express-validator';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
+
+const authenticateToken2 = (req ,res) => {
+
+    const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
+    
+    if (!token) return res.status(401).json({ error: 'Access token is missing' });
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ error: 'Invalid access token' });
+        }
+        req.user = user;
+    });
+}
 
 router.get('/signup', (req, res) => {
     const error = req.session.message;
     req.session.message = null;
     if (req.cookies.token) {
+        authenticateToken2(req , res);
         if (req.user) {
             if (req.user.user_role === 'customer' || req.user.user_role === 'chef') {
                 return res.redirect('/home');
