@@ -26,9 +26,6 @@
                         Total Amount Paid: ₹<%= payments[i].Total_amount %>
                     </div>
                     <div class="d-flex gap-2 mt-3">
-                        <form action="/api/delete-order/<%= orders[i].id %>" method="POST">
-                            <button type="submit" class="btn btn-danger">Delete this order!</button>
-                        </form>
                         <form action="/order/items/<%= orders[i].id %>">
                             <button type="submit" class="btn btn-info">View Items</button>
                         </form>
