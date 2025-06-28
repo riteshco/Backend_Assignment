@@ -16,7 +16,12 @@ router.post('/payment-done/:id', authenticateToken, async (req, res) => {
             res.redirect('/orders');
         }
         else {
-            res.send(401).send('Authorization failure!')
+            res.status(401)
+            error = new Error('Unauthorized access');
+            error.status = 401;
+            error.message = 'Unauthorized access';
+            console.error('Unauthorized access:', error);
+            res.render('error.ejs', { error });
         }
     }
     catch (error) {
@@ -48,7 +53,7 @@ router.get('/all-payments', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send("Forbidden access");
+        res.status(403).send("Forbidden access");
     }
 });
 

@@ -31,24 +31,35 @@ router.get('/orders', authenticateToken, async (req, res) => {
 
     } catch (error) {
         res.status(500);
-        err.status = 500;
-        err.message = 'Error fetching orders';
-        console.error('Error fetching orders:', err);
+        error.status = 500;
+        error.message = 'Error fetching orders';
+        console.error('Error fetching orders:', error);
         res.render('error.ejs', { error });
     }
 });
 
-router.post('/api/order-done/:id', async (req, res) => {
-    try {
-        const query = 'UPDATE Orders SET current_status = "delivered" WHERE id = ?';
-        await runDBCommand(query, [req.params.id]);
-        res.redirect('/home');
+router.post('/api/order-done/:id', authenticateToken , async (req, res) => {
+    if(req.user.user_role === "chef"){
+
+        try {
+            const query = 'UPDATE Orders SET current_status = "delivered" WHERE id = ?';
+            await runDBCommand(query, [req.params.id]);
+            res.redirect('/home');
+        }
+        catch (error) {
+            res.status(500);
+            error.status = 500;
+            error.message = 'Error in marking order as done';
+            console.error('Error in marking order as done:', error);
+            res.render('error.ejs', { error });
+        }
     }
-    catch (error) {
-        res.status(500);
-        error.status = 500;
-        error.message = 'Error in marking order as done';
-        console.error('Error in marking order as done:', error);
+    else{
+        res.status(401)
+        error = new Error('Unauthorized access');
+        error.status = 401;
+        error.message = 'Unauthorized access';
+        console.error('Unauthorized access:', error);
         res.render('error.ejs', { error });
     }
 });
@@ -85,7 +96,7 @@ router.get('/all-orders', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send("Forbidden Access")
+        res.status(403).send("Forbidden Access")
     }
 });
 

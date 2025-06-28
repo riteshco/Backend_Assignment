@@ -16,6 +16,7 @@
         <% } %>  
         <% let i=0; %>  
         <% payments.forEach(payment =>{ %>
+            <% if (payment.payment_status === "completed" && !(orders[i].current_status === "accepted" || orders[i].current_status === "delivered")){ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
                 <div class="title text-center">
                     <div class="h1 fw-bolder">Payment #<%= payment.id %></div>
@@ -38,8 +39,69 @@
                         <% } %>   
                         <% } %> 
                 </div>
+            </div>  
+            <% } %> 
+        <% ++i; %> 
+        <% }); %> 
+        <% let j=0; %>  
+        <% payments.forEach(payment =>{ %>
+            <% if ( payment.payment_status === "pending"){ %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
+                <div class="title text-center">
+                    <div class="h1 fw-bolder">Payment #<%= payment.id %></div>
+                    <div class="h4">Customer ID : <%= payment.user_id %> </div>
+                    <div class="h4">Total Amount : ₹<%= payment.Total_amount %></div>
+                    <% if (payment.payment_status === "pending"){ %>
+                    <div class="h4">Status : "<span class="fw-bolder text-danger"><%= payment.payment_status %></span>"</div>
+                    <% } else if (payment.payment_status === "completed"){ %>
+                    <div class="h4">Status : "<span class="fw-bolder"><%= payment.payment_status %></span>"</div>
+                    <% } %>
+                </div>
+                <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
+                    <%if (payment.payment_status === "completed"){ %>
+                        <% if (orders[j].current_status === "accepted" || orders[j].current_status === "delivered" ){ %>
+                            <button class="btn btn-outline-secondary">Bill already generated</button>
+                            <% } else { %>
+                                <form action="/gen-bill/<%= payment.id %>" method="POST">
+                                    <button type="submit" class="btn btn-outline-info">Generate Bill</button>
+                                </form>
+                        <% } %>   
+                        <% } %> 
+                </div>
             </div>
-        <% ++i; %>  
+            <% } %> 
+        <% ++j; %> 
+        <% }); %>
+        <% let k=0; %>  
+        <% payments.forEach(payment =>{ %>
+            <% if ( payment.payment_status === "completed" ){ %>
+            <% if (orders[k].current_status === "accepted" || orders[k].current_status === "delivered"){ %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
+                <div class="title text-center">
+                    <div class="h1 fw-bolder">Payment #<%= payment.id %></div>
+                    <div class="h4">Customer ID : <%= payment.user_id %> </div>
+                    <div class="h4">Total Amount : ₹<%= payment.Total_amount %></div>
+                    <% if (payment.payment_status === "pending"){ %>
+                    <div class="h4">Status : "<span class="fw-bolder text-danger"><%= payment.payment_status %></span>"</div>
+                    <% } else if (payment.payment_status === "completed"){ %>
+                    <div class="h4">Status : "<span class="fw-bolder"><%= payment.payment_status %></span>"</div>
+                    <% } %>
+                </div>
+                <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
+                    <%if (payment.payment_status === "completed"){ %>
+                        <% if (orders[k].current_status === "accepted" || orders[k].current_status === "delivered" ){ %>
+                            <button class="btn btn-outline-secondary">Bill already generated</button>
+                            <% } else { %>
+                                <form action="/gen-bill/<%= payment.id %>" method="POST">
+                                    <button type="submit" class="btn btn-outline-info">Generate Bill</button>
+                                </form>
+                        <% } %>   
+                        <% } %> 
+                </div>
+            </div>
+            <% } %> 
+            <% } %> 
+        <% ++k; %>
         <% }); %> 
     </div>
 </body>

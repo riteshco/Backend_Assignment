@@ -10,6 +10,7 @@
     <%- include('partials/navbar') %>
     <div class="info container d-flex justify-content-center align-items-center w-100 m-0 flex-wrap gap-4 mx-auto">   
         <% orders.forEach(order =>{ %>
+        <% if (order.current_status === "pending"){ %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
                 <div class="title text-center">
                     <div class="h1 fw-bolder">Order #<%= order.id %></div>
@@ -27,6 +28,28 @@
                 <% } %>
                 </div>
             </div>
+            <% } %>
+        <% }); %> 
+        <% orders.forEach(order =>{ %>
+        <% if (order.current_status !== "pending"){ %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card text-success">
+                <div class="title text-center">
+                    <div class="h1 fw-bolder">Order #<%= order.id %></div>
+                    <div class="h4">Status : <%= order.current_status %> </div>
+                    <div class="h4">Customer ID : <%= order.customer_id %></div>
+                    <div class="h4">Table Number : <%= order.table_number %></div>
+                    <div class="h4">Instructions by Customer : "<%= order.instructions %>"</div>
+                </div>
+                <div class="d-flex column-gap-4">
+                    <form action="/api/delete-order/<%= order.id %>" method="POST" class="d-flex column-gap-4">
+                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    </form>
+                <% if(order.current_status !== "pending"){ %>
+                    <a href="#" class="btn btn-outline-secondary">Bill generated!</a>                   
+                <% } %>
+                </div>
+            </div>
+            <% } %>
         <% }); %> 
     </div>
 </body>

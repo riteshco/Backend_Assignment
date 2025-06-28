@@ -28,6 +28,8 @@ router.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 1
             res.render('chef.ejs', { orders, payments , user: req.user });
         }
         else if (user_roleArr[0].user_role === 'customer') {
+            let msg = req.session.message;
+            req.session.message = null;
             const result = validationResult(req)
             if (result.errors[0]) {
                 res.send(result.errors[0].msg)
@@ -46,7 +48,7 @@ router.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 1
                 searchedProducts = await runDBCommand(query1, [`%${req.query.search}%`, low, high])
             }
             const products = await runDBCommand('SELECT * FROM Products')
-            res.render('home.ejs', { user: req.user, products: products, query: req.query.search, range, searchedProducts });
+            res.render('home.ejs', { user: req.user, products: products, query: req.query.search, range, searchedProducts , msg });
         }
     }
     catch (error) {

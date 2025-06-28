@@ -13,6 +13,11 @@
         <div>Your one-stop solution for food delivery.</div>
         <div class="h2 fw-bold">MENU!</div>
     </div>
+    <% if (msg){ %>
+    <div class="alert alert-success text-center">
+    <%= msg %>
+    </div>
+    <% } %>
     <div class="search-bar text-center container">
         <form action="/home" class="d-flex flex-column align-items-center row-gap-2 mb-5">
             <input type="text" name="search" placeholder="Search for your product" class="w-50 border-3 input-color-2 form-control border-dark">
@@ -39,7 +44,7 @@
                 <div class="h4">Price: ₹<%= product.price %></div>
                 <div class="h4">Category: <%= product.category %></div>
             </div>
-            <div class="image w-100">
+            <div class="image w-100 min-height">
                 <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
             </div>
             <div class="form fw-bolder h5 d-flex flex-column row-gap-4 mt-3">

@@ -13,6 +13,7 @@
             <div class="h1 fw-bolder">Orders!</div>
         <% let i=0; %>
         <% orders.forEach(order =>{ %>
+            <% if (order.current_status === "accepted") { %>
             <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card row-gap-2">
                 <div>
                     Order-id : <%= order.id %>
@@ -43,6 +44,77 @@
                 </div>
             </div>
         <% i++; %>
+        <% } %>
+        <% }) %>
+        <% let j=0; %>
+        <% orders.forEach(order =>{ %>
+            <% if (order.current_status === "pending") { %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card row-gap-2">
+                <div>
+                    Order-id : <%= order.id %>
+                </div>
+                <div>
+                    Customer-id: <%= order.customer_id %>
+                </div>
+                <div>
+                    Table Number : <%= order.table_number %>
+                </div>
+                <div>
+                    Specific Instructions : <%= order.instructions %>
+                </div>
+                <div>
+                    STATUS : <span class="fw-bolder border border-3 border-primary rounded"> <%= order.current_status %> </span>
+                </div>
+                <div>
+                    Payment Status : <span class="fw-bolder border border-3 border-primary rounded"> <%= payments[j].payment_status %> </span>
+                </div>
+                <div>
+                    <form action="/api/order-done/<%= order.id %>" method="POST">
+                        <% if(order.current_status === "delivered"){ %>
+                        <a class="btn btn-secondary">Delivered!</a>
+                        <% }else if (payments[j].payment_status === "completed") { %>
+                        <button type="submit" class="btn btn-success">Mark as Done!</button>
+                        <% } %>   
+                    </form>
+                </div>
+            </div>
+        <% j++; %>
+        <% } %>
+        <% }) %>
+        <% let k=0; %>
+        <% orders.forEach(order =>{ %>
+            <% if (order.current_status === "delivered") { %>
+            <div class="card w-100 p-5 bg-secondary bg-opacity-10 blur-card row-gap-2">
+                <div>
+                    Order-id : <%= order.id %>
+                </div>
+                <div>
+                    Customer-id: <%= order.customer_id %>
+                </div>
+                <div>
+                    Table Number : <%= order.table_number %>
+                </div>
+                <div>
+                    Specific Instructions : <%= order.instructions %>
+                </div>
+                <div>
+                    STATUS : <span class="fw-bolder border border-3 border-primary rounded"> <%= order.current_status %> </span>
+                </div>
+                <div>
+                    Payment Status : <span class="fw-bolder border border-3 border-primary rounded"> <%= payments[k].payment_status %> </span>
+                </div>
+                <div>
+                    <form action="/api/order-done/<%= order.id %>" method="POST">
+                        <% if(order.current_status === "delivered"){ %>
+                        <a class="btn btn-secondary">Delivered!</a>
+                        <% }else if (payments[k].payment_status === "completed") { %>
+                        <button type="submit" class="btn btn-success">Mark as Done!</button>
+                        <% } %>   
+                    </form>
+                </div>
+            </div>
+        <% k++; %>
+        <% } %>
         <% }) %>
         <% } else { %>
             <div class="h2 fw-bolder">No Orders Yet!</div>

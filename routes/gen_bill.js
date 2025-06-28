@@ -21,7 +21,7 @@ router.post('/gen-bill/:id', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send('Forbidden Access');
+        res.status(403).send('Forbidden Access');
     }
 }); 
 

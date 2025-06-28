@@ -107,7 +107,7 @@ router.post('/api/cart/order', authenticateToken, async (req, res) => {
         await runDBCommand(query4, [req.user.id, result.insertId, totalAmount]);
         console.log('Order placed successfully:', result.insertId);
         req.session.message = "Order placed successfully!";
-        res.redirect('/cart');
+        res.redirect('/home');
     }
     catch (error) {
         res.status(500);

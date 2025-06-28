@@ -19,7 +19,7 @@ router.get('/admin', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send("Forbidden")
+        res.status(403).send("Forbidden")
     }
 });
 

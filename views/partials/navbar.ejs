@@ -36,6 +36,9 @@
                     <% } %>
                 <% } else if (user.user_role === 'chef'){ %>
                     <% if (currentPage === 'home'){ %>
+                        <form action="/past-orders">
+                            <button type="submit" class="btn btn-outline-success navbar-height">Past - Orders</button>
+                        </form>
                         <form action="/add-food">
                             <button type="submit" class="btn btn-outline-info">Add Food</button>
                         </form>

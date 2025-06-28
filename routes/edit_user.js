@@ -36,7 +36,7 @@ router.post('/api/delete-user/:id', authenticateToken, async (req, res) => {
             }
         }
         else {
-            res.status(401).send('Forbidden Access');
+            res.status(403).send('Forbidden Access');
         }
     }
 
@@ -74,7 +74,7 @@ router.get('/edit-user/:id', authenticateToken, async (req, res) => {
             }
         }
         else {
-            res.status(401).send('Forbidden Access');
+            res.status(403).send('Forbidden Access');
         }
     }
 });
@@ -98,6 +98,10 @@ router.post('/edit-user', authenticateToken, async (req, res) => {
         }
 
         try {
+            if(user_role === "chef"){
+                const query1 = 'DELETE FROM Orders WHERE customer_id = ? AND current_status != "delivered"';
+                await runDBCommand(query1, [id]);
+            }
             const query = 'UPDATE Users SET username = ?, user_role = ? WHERE id = ?'
             const params = [username, user_role, id];
             await runDBCommand(query, params);
@@ -112,7 +116,7 @@ router.post('/edit-user', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(400).send('Forbidden Access')
+        res.status(403).send('Forbidden Access')
     }
 });
 

@@ -7641,6 +7641,9 @@ textarea.form-control-lg {
   min-width: 100px;
   min-height: 50px;
 }
+.min-height{
+  min-height: 17rem;
+}
 
 .w-50 {
   width: 50% !important;

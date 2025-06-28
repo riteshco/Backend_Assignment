@@ -21,7 +21,7 @@ router.get('/users', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send("Forbidden")
+        res.status(403).send("Forbidden")
     }
 }
 );
@@ -41,7 +41,7 @@ router.get('/users/:id', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send("Forbidden")
+        res.status(403).send("Forbidden")
     }
 }
 );

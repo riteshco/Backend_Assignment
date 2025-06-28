@@ -22,7 +22,7 @@ router.get('/add-food', authenticateToken, (req, res) => {
         }
     }
     else {
-        res.status(401).send('Forbidden Access')
+        res.status(403).send('Forbidden Access')
     }
 });
 
@@ -75,7 +75,7 @@ router.post('/api/add-food', authenticateToken, async (req, res) => {
         }
     }
     else {
-        res.status(401).send('Forbidden Access')
+        res.status(403).send('Forbidden Access')
     }
 });
 
