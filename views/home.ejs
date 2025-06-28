@@ -84,7 +84,7 @@
                 <div class="h4">Category: <%= product.category %></div>
             </div>
             <div class="image w-100">
-                <img class="w-100 object-fit-cover" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
+                <img class="w-100 object-fit-cover min-height" src='<%= product.image_url %>' alt="<%= product.product_name %> image">
             </div>
             <div class="form fw-bolder h5 d-flex flex-column row-gap-4 mt-3">
                 <form class="text-center" action="/add-one-to-cart/<%= product.id %>" method="POST">

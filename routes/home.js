@@ -7,7 +7,7 @@ import { query, validationResult } from 'express-validator';
 
 const router = express.Router();
 
-router.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 16 }).withMessage('Search must be Less than 16 characters'), async (req, res) => {
+router.get('/home', authenticateToken, query('search').trim().isLength({ min: 0, max: 16 }).withMessage('Search must be Less than 16 characters'), async (req, res) => {
         try {
             if (!req.user) {
                 res.status(401);
@@ -39,6 +39,7 @@ router.get('/home', authenticateToken, query('search').isLength({ min: 0, max: 1
             let high = 1e4;
             let range = []
             if (Object.keys(req.query).length) {
+                req.query.search = req.query.search.trim();
                 if (req.query.price !== "all") {
                     range = req.query.price.split('-')
                     low = range[0];
